@@ -34,14 +34,14 @@ java {
 
 model {
     platforms {
-        arm {
-            architecture "arm"
+        arm64 {
+            architecture "arm64"
         }
     }
 
     components {
         doom(NativeLibrarySpec) {
-            targetPlatform "arm"
+            targetPlatform "arm64"
             binaries.all {
                 def jvmHome = javaToolchains.launcherFor(java.toolchain).get().metadata.installationPath.asFile
                 if (targetPlatform.operatingSystem.macOsX) {
@@ -50,6 +50,8 @@ model {
                     cCompiler.args '-mmacosx-version-min=10.9'
                     linker.args '-mmacosx-version-min=10.9'
                     linker.args '-stdlib=libc++'
+                    linker.args '-L', "${projectDir}/libs"  // Add library search path
+                    linker.args '-lmacosdoom'  // Link against libdoom.dylib (without 'lib' prefix)
                 } else if (targetPlatform.operatingSystem.linux) {
                     cCompiler.args '-I', "${jvmHome}/include"
                     cCompiler.args '-I', "${jvmHome}/include/linux"
