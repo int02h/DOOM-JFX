@@ -1,8 +1,9 @@
 package com.dpforge.doom;
 
-import javax.swing.SwingUtilities;
 import java.awt.image.BufferedImage;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.List;
 
 public class DoomVideo {
 
@@ -14,6 +15,7 @@ public class DoomVideo {
     private static byte[] palette;
     private static BufferedImage renderedScreen;
 
+    private static final List<DoomEvent> keyboardEvents = new ArrayList<>();
     private static DoomDisplay display;
 
     public native static int getScreenWidth();
@@ -21,6 +23,10 @@ public class DoomVideo {
     public native static int getScreenHeight();
 
     public native static ByteBuffer getScreenBuffer(int index, int size);
+
+    private native static void onKeyDown(int keyCode);
+
+    private native static void onKeyUp(int keyCode);
 
     public static void initGraphics() {
         System.out.println("initGraphics");
@@ -53,5 +59,16 @@ public class DoomVideo {
 
     public static void setPalette(byte[] palette) {
         DoomVideo.palette = palette;
+    }
+
+    public static void startFrame() {
+        keyboardEvents.clear();
+        display.keyboard.getAllCodes(keyboardEvents);
+        for (DoomEvent event : keyboardEvents) {
+            switch (event.type()) {
+                case KEY_DOWN -> onKeyDown(event.code());
+                case KEY_UP -> onKeyUp(event.code());
+            }
+        }
     }
 }

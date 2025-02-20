@@ -28,6 +28,8 @@ rcsid[] = "$Id: i_x.c,v 1.6 1997/02/03 22:45:10 b1 Exp $";
 #include "doomtype.h"
 #include "doomdef.h"
 #include "v_video.h"
+#include "d_event.h"
+#include "d_main.h"
 
 JavaVM *g_jvm;
 
@@ -54,6 +56,22 @@ JNIEXPORT jobject JNICALL Java_com_dpforge_doom_DoomVideo_getScreenBuffer(JNIEnv
     return (*env)->NewDirectByteBuffer(env, screens[index], size);
 }
 
+JNIEXPORT void JNICALL Java_com_dpforge_doom_DoomVideo_onKeyDown(JNIEnv *env, jclass clazz, jint keyCode)
+{
+    event_t event;
+    event.type = ev_keydown;
+    event.data1 = keyCode;
+    D_PostEvent(&event);
+}
+
+JNIEXPORT void JNICALL Java_com_dpforge_doom_DoomVideo_onKeyUp(JNIEnv *env, jclass clazz, jint keyCode)
+{
+    event_t event;
+    event.type = ev_keyup;
+    event.data1 = keyCode;
+    D_PostEvent(&event);
+}
+
 void callDoomVideo(const char *name)
 {
     JNIEnv *env;
@@ -72,6 +90,7 @@ void I_ShutdownGraphics(void)
 
 void I_StartFrame (void)
 {
+    callDoomVideo("startFrame");
 }
 
 void I_GetEvent(void)

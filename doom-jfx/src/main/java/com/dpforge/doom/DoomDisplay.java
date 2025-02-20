@@ -16,6 +16,8 @@ class DoomDisplay extends JPanel {
     private final int width;
     private final int height;
 
+    final DoomKeyboard keyboard = new DoomKeyboard();
+
     DoomDisplay(int width, int height, BufferedImage screenBuffer) {
         this.width = width;
         this.height = height;
@@ -33,6 +35,8 @@ class DoomDisplay extends JPanel {
             frame.setVisible(true);
             frame.setContentPane(this);
             frame.pack();
+
+            frame.addKeyListener(keyboard);
         });
     }
 
