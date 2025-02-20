@@ -1,7 +1,7 @@
 package com.dpforge.doom;
 
 public class DoomMain {
-    public native void print();
+    public native void start();
 
     static {
         System.loadLibrary("macosdoom");
@@ -9,6 +9,6 @@ public class DoomMain {
     }
 
     public static void main(String[] args) {
-        new DoomMain().print();
+        new DoomMain().start();
     }
 }

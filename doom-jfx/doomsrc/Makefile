@@ -4,10 +4,16 @@
 #
 # $Log:$
 #
+
+ifndef JAVA_HOME
+    $(error JAVA_HOME is not set or empty. Please set JAVA_HOME before running make.)
+endif
+
 CC=  gcc  # gcc or g++
 
+JAVA_INCLUDES=-I$(JAVA_HOME)/include -I$(JAVA_HOME)/include/darwin
 # For a proper .dylib, you should enable Position-Independent Code (PIC) using -fPIC
-CFLAGS=-g -shared -dynamiclib -fPIC -Wall -DNORMALUNIX -DMACOS # -DLINUX -DUSEASM
+CFLAGS=-g -shared -dynamiclib -fPIC -Wall -DNORMALUNIX -DMACOS #-DLINUX -DUSEASM
 
 # subdirectory for objects
 O=build
@@ -92,10 +98,10 @@ copy_output:
 	cp $(O)/libmacosdoom.dylib $(O)/../../libs/
 
 $(O)/macosdoom:	$(OBJS)
-	$(CC) $(CFLAGS) $(OBJS) -o $(O)/libmacosdoom.dylib
+	$(CC) $(CFLAGS) $(JAVA_INCLUDES) $(OBJS) -o $(O)/libmacosdoom.dylib
 
 $(O)/%.o:	%.c
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) $(JAVA_INCLUDES) -c $< -o $@
 
 #############################################################
 #
