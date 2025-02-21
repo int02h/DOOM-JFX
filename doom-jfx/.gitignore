@@ -43,3 +43,5 @@ bin/
 
 # There files usually cannot be distributed
 *.wad
+# save game files
+*.dsg
