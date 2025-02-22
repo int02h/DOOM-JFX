@@ -1,6 +1,8 @@
 package com.dpforge.doom.wad;
 
 import java.awt.Color;
+import java.util.HashMap;
+import java.util.Map;
 
 public class WadFile {
 
@@ -10,25 +12,9 @@ public class WadFile {
 
     public Color[][] palettes;
     public byte[][] colorMaps;
-    public Thing[] things;
-    public LineDef[] lineDefs;
-
     public EndDoom endDoom;
 
-    @Override
-    public String toString() {
-        return new StringBuilder()
-                .append(formatProperty("type", type))
-                .append(formatProperty("lumpNumber", lumpNumber))
-                .append(formatProperty("infoTableOffset", infoTableOffset))
-                .append(formatProperty("palette number", palettes.length))
-                .append(formatProperty("color map number", colorMaps.length))
-                .append(formatProperty("thing number", things.length))
-                .append(formatProperty("end doom", endDoom.asText()))
-                .toString();
-    }
+    public final WadDirectory directory = new WadDirectory("");
+    public final Map<String, WadMap> maps = new HashMap<>();
 
-    private String formatProperty(String name, Object value) {
-        return String.format("%-20s%s\n", name, value);
-    }
 }

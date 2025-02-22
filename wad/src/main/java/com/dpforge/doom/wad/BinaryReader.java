@@ -12,6 +12,10 @@ public class BinaryReader {
         buffer = ByteBuffer.wrap(data).order(ByteOrder.LITTLE_ENDIAN);
     }
 
+    public int getOffset() {
+        return buffer.position();
+    }
+
     public int setOffset(int offset) {
         int prevPosition = buffer.position();
         buffer.position(offset);
@@ -38,6 +42,10 @@ public class BinaryReader {
 
     public int readInt16() {
         return buffer.getShort() & 0xFFFF;
+    }
+
+    public int readSignedInt16() {
+        return buffer.getShort();
     }
 
     public int readInt32() {
