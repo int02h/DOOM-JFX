@@ -212,8 +212,8 @@ public class WadFileReader {
         currentMap.vertexes = new Vertex[vertexCount];
 
         for (int i = 0; i < vertexCount; i++) {
-            int x = reader.readInt16();
-            int y = reader.readInt16();
+            int x = reader.readSignedInt16();
+            int y = reader.readSignedInt16();
             currentMap.vertexes[i] = new Vertex(x, y);
         }
     }

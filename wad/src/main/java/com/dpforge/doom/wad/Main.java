@@ -7,6 +7,7 @@ import java.io.IOException;
 public class Main {
     private static final GraphicRenderer graphicsRenderer = new GraphicRenderer();
     private static final SoundRenderer soundRenderer = new SoundRenderer();
+    private static final MapRenderer mapRenderer = new MapRenderer();
 
     public static void main(String[] args) throws IOException, WadException {
         File wadFile = new File("../doom-jfx/doom.wad");
@@ -18,10 +19,11 @@ public class Main {
         FileUtil.deleteDirectory(output);
 
         outputDirectory(output, wad.directory);
+        renderMap(output, wad.maps.get("E1M1"));
     }
 
     private static void outputDirectory(File output, WadDirectory directory) throws IOException {
-        File dir = directory.name.isEmpty() ? output : new File(output, directory.name);
+        File dir = new File(output, directory.name.isEmpty() ? "lumps" : directory.name);
 
         for (var entry : directory.graphics.entrySet()) {
             var file = new File(dir, String.format("graphics/%s.png", entry.getKey()));
@@ -44,5 +46,10 @@ public class Main {
         for (var d : directory.directories) {
             outputDirectory(dir, d);
         }
+    }
+
+    private static void renderMap(File output, WadMap map) throws IOException {
+        File file = new File(output, String.format("%s.png", map.name));
+        ImageIO.write(mapRenderer.render(map), "PNG", file);
     }
 }
