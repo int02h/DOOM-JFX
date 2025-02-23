@@ -103,8 +103,23 @@ public class MapRenderer {
             }
         }
 
+        renderThings();
+
         g.dispose();
         return image;
+    }
+
+    private void renderThings() {
+        g.setColor(Color.BLUE);
+        int dotSize = 8 * scale;
+        for (Thing t : map.things) {
+            g.fillOval(
+                    t.x() / scale + padding - minX - dotSize / 2,
+                    verticalFlip * t.y() / scale + padding - minY - dotSize / 2,
+                    dotSize,
+                    dotSize
+            );
+        }
     }
 
     private List<Path2D> extractPolygons(int sectorNumber) {

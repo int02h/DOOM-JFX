@@ -152,8 +152,8 @@ public class WadFileReader {
         currentMap.things = new Thing[thingCount];
 
         for (int i = 0; i < thingCount; i++) {
-            int x = reader.readInt16();
-            int y = reader.readInt16();
+            int x = reader.readSignedInt16();
+            int y = reader.readSignedInt16();
             int angle = reader.readInt16();
             int type = reader.readInt16();
             int flags = reader.readInt16();
