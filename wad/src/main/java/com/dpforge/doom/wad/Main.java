@@ -10,7 +10,7 @@ public class Main {
     private static final MapRenderer mapRenderer = new MapRenderer();
 
     public static void main(String[] args) throws IOException, WadException {
-        File wadFile = new File("../doom-jfx/doom.wad");
+        File wadFile = new File("../doom-jfx/__doom2.wad");
         WadFile wad = new WadFileReader().read(wadFile);
 
         graphicsRenderer.setPalette(wad.palettes[0]);
@@ -19,7 +19,7 @@ public class Main {
         FileUtil.deleteDirectory(output);
 
         outputDirectory(output, wad.directory);
-        renderMap(output, wad.maps.get("E1M1"));
+        renderMap(output, wad.maps.get("MAP01"));
     }
 
     private static void outputDirectory(File output, WadDirectory directory) throws IOException {

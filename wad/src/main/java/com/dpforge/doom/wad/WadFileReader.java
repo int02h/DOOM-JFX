@@ -52,12 +52,7 @@ public class WadFileReader {
             String lumpName = reader.readNullPaddedAsciiString(8);
 
             if (lumpSize == 0) {
-                if (lumpName.length() == 4
-                        && lumpName.charAt(0) == 'E'
-                        && lumpName.charAt(2) == 'M'
-                        && Character.isDigit(lumpName.charAt(1))
-                        && Character.isDigit(lumpName.charAt(3))
-                ) {
+                if (isMapName(lumpName)) {
                     currentMap = new WadMap(lumpName);
                     wad.maps.put(lumpName, currentMap);
                 } else if (lumpName.endsWith("_START")) {
@@ -90,7 +85,7 @@ public class WadFileReader {
                 case "TEXTURE1", "TEXTURE2" -> System.out.format("Skip %s of size %d\n", lumpName, lumpSize);
                 case "PNAMES" -> readPNames(lumpSize);
                 case "GENMIDI" -> readGenMidi(lumpSize);
-                case "DMXGUS" -> readDmxGus(lumpSize);
+                case "DMXGUS", "DMXGUSC" -> readDmxGus(lumpSize);
                 case "PLAYPAL" -> readPlayPal(lumpSize);
                 case "COLORMAP" -> readColorMap(lumpSize);
                 case "ENDOOM" -> readEndDoom(lumpSize);
@@ -398,5 +393,20 @@ public class WadFileReader {
             throw new WadException("Duplicate flat %s", lumpName);
         }
         System.out.format("Skipping flat %s\n", lumpName);
+    }
+
+    private static boolean isMapName(String lumpName) {
+        if (lumpName.length() == 4
+                && lumpName.charAt(0) == 'E'
+                && lumpName.charAt(2) == 'M'
+                && Character.isDigit(lumpName.charAt(1))
+                && Character.isDigit(lumpName.charAt(3))
+        ) {
+            return true;
+        }
+        if (lumpName.startsWith("MAP")) {
+            return true;
+        }
+        return false;
     }
 }
