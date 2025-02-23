@@ -10,6 +10,8 @@ public class MapRenderer {
 
     private final int padding = 32;
     private final int scale = 2;
+    // 1 - do not flip vertically, -1 - do flip
+    private final int verticalFlip = -1;
 
     public BufferedImage render(WadMap map) {
         int minX = Short.MAX_VALUE;
@@ -18,9 +20,9 @@ public class MapRenderer {
         int maxY = Short.MIN_VALUE;
         for (Vertex v : map.vertexes) {
             minX = Math.min(minX, v.x() / scale);
-            minY = Math.min(minY, v.y() / scale);
+            minY = Math.min(minY, verticalFlip * v.y() / scale);
             maxX = Math.max(maxX, v.x() / scale);
-            maxY = Math.max(maxY, v.y() / scale);
+            maxY = Math.max(maxY, verticalFlip * v.y() / scale);
         }
         int width = maxX - minX + 2 * padding;
         int height = maxY - minY + 2 * padding;
@@ -36,15 +38,15 @@ public class MapRenderer {
         g.fillRect(0, 0, width, height);
 
         g.setColor(Color.BLACK);
-        g.setStroke(new BasicStroke(4));
+        g.setStroke(new BasicStroke(8f / scale));
         for (LineDef line : map.lineDefs) {
             Vertex start = map.vertexes[line.startVertex()];
             Vertex end = map.vertexes[line.endVertex()];
             g.drawLine(
                     start.x() / scale + padding - minX,
-                    start.y() / scale + padding - minY,
+                    verticalFlip * start.y() / scale + padding - minY,
                     end.x() / scale + padding - minX,
-                    end.y() / scale + padding - minY
+                    verticalFlip * end.y() / scale + padding - minY
             );
         }
 
