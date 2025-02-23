@@ -53,7 +53,10 @@ public class Main {
 
     private static void renderMap(File output, WadMap map) throws IOException {
         File file = new File(output, String.format("%s.png", map.name));
-        MapRenderer mapRenderer = new MapRenderer(map, flats);
-        ImageIO.write(mapRenderer.render(), "PNG", file);
+        try (MapRenderer mapRenderer = new MapRenderer(map)) {
+            mapRenderer.renderFlats(flats);
+            mapRenderer.renderThings();
+            ImageIO.write(mapRenderer.getImage(), "PNG", file);
+        }
     }
 }

@@ -11,6 +11,7 @@ import java.awt.RenderingHints;
 import java.awt.TexturePaint;
 import java.awt.geom.Path2D;
 import java.awt.image.BufferedImage;
+import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -18,10 +19,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class MapRenderer {
+public class MapRenderer implements Closeable {
 
     private final WadMap map;
-    private final Map<String, File> flats;
 
     private final BufferedImage image;
     private final Graphics2D g;
@@ -36,9 +36,8 @@ public class MapRenderer {
     // 1 - do not flip vertically, -1 - do flip
     private final int verticalFlip = -1;
 
-    public MapRenderer(WadMap map, Map<String, File> flats) {
+    public MapRenderer(WadMap map) {
         this.map = map;
-        this.flats = flats;
 
         int minX = Short.MAX_VALUE;
         int minY = Short.MAX_VALUE;
@@ -84,7 +83,16 @@ public class MapRenderer {
         }
     }
 
-    public BufferedImage render() throws IOException {
+    public BufferedImage getImage() {
+        return image;
+    }
+
+    @Override
+    public void close() {
+        g.dispose();
+    }
+
+    public void renderFlats(Map<String, File> flats) throws IOException {
         for (int i = 0; i < map.sectors.length; i++) {
             Sector sector = map.sectors[i];
             List<Path2D> polygons = extractPolygons(i);
@@ -102,23 +110,13 @@ public class MapRenderer {
                 g.draw(polygon);
             }
         }
-
-        renderThings();
-
-        g.dispose();
-        return image;
     }
 
-    private void renderThings() {
+    public void renderThings() {
         g.setColor(Color.BLUE);
         int dotSize = 8 * scale;
         for (Thing t : map.things) {
-            g.fillOval(
-                    t.x() / scale + padding - minX - dotSize / 2,
-                    verticalFlip * t.y() / scale + padding - minY - dotSize / 2,
-                    dotSize,
-                    dotSize
-            );
+            g.fillOval(x(t.x()) - dotSize / 2, y(t.y()) - dotSize / 2, dotSize, dotSize);
         }
     }
 
@@ -139,10 +137,7 @@ public class MapRenderer {
             Path2D polygon = new Path2D.Double();
             result.add(polygon);
             final Vertex startVertex = vertexes.get(0).getFirst();
-            polygon.moveTo(
-                    (double) startVertex.x() / scale + padding - minX,
-                    (double) verticalFlip * startVertex.y() / scale + padding - minY
-            );
+            polygon.moveTo(x(startVertex.x()), y(startVertex.y()));
             var start = startVertex;
             while (true) {
                 Vertex end = null;
@@ -161,10 +156,7 @@ public class MapRenderer {
                     polygon.closePath();
                     break;
                 }
-                polygon.lineTo(
-                        (double) end.x() / scale + padding - minX,
-                        (double) verticalFlip * end.y() / scale + padding - minY
-                );
+                polygon.lineTo(x(end.x()), y(end.y()));
                 if (end == startVertex) {
                     break;
                 }
@@ -172,5 +164,13 @@ public class MapRenderer {
             }
         }
         return result;
+    }
+
+    private int x(int x) {
+        return x / scale + padding - minX;
+    }
+
+    private int y(int y) {
+        return verticalFlip * y / scale + padding - minY;
     }
 }
