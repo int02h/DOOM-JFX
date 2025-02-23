@@ -8,4 +8,5 @@ public record SideDef(
         String middleTexture,
         int facingSectorNumber
 ) {
+    public static final int NO_SIDE_DEF = 0xFFFF;
 }

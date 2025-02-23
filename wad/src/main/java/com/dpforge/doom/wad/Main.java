@@ -3,11 +3,13 @@ package com.dpforge.doom.wad;
 import javax.imageio.ImageIO;
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Main {
     private static final GraphicRenderer graphicsRenderer = new GraphicRenderer();
     private static final SoundRenderer soundRenderer = new SoundRenderer();
-    private static final MapRenderer mapRenderer = new MapRenderer();
+    private static final Map<String, File> flats = new HashMap<>();
 
     public static void main(String[] args) throws IOException, WadException {
         File wadFile = new File("../doom-jfx/__doom2.wad");
@@ -35,6 +37,7 @@ public class Main {
             var file = new File(dir, String.format("flat/%s.png", entry.getKey()));
             FileUtil.ensureParentExist(file);
             ImageIO.write(graphicsRenderer.render(entry.getValue()), "PNG", file);
+            flats.put(entry.getKey(), file);
         }
 
         for (var entry : directory.sounds.entrySet()) {
@@ -50,6 +53,7 @@ public class Main {
 
     private static void renderMap(File output, WadMap map) throws IOException {
         File file = new File(output, String.format("%s.png", map.name));
-        ImageIO.write(mapRenderer.render(map), "PNG", file);
+        MapRenderer mapRenderer = new MapRenderer(map, flats);
+        ImageIO.write(mapRenderer.render(), "PNG", file);
     }
 }
