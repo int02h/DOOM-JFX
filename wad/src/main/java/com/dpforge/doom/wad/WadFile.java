@@ -13,8 +13,10 @@ public class WadFile {
     public Color[][] palettes;
     public byte[][] colorMaps;
     public EndDoom endDoom;
+    public String[] pnames;
 
     public final WadDirectory directory = new WadDirectory("");
     public final Map<String, WadMap> maps = new HashMap<>();
+    public final Map<String, Texture> textures = new HashMap<>();
 
 }

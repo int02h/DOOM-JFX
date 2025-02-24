@@ -9,7 +9,7 @@ import java.util.Map;
 public class Main {
     private static final GraphicRenderer graphicsRenderer = new GraphicRenderer();
     private static final SoundRenderer soundRenderer = new SoundRenderer();
-    private static final Map<String, File> flats = new HashMap<>();
+    private static final Map<String, File> graphics = new HashMap<>();
 
     public static void main(String[] args) throws IOException, WadException {
         File wadFile = new File("../doom-jfx/__doom2.wad");
@@ -20,7 +20,9 @@ public class Main {
         var output = new File("output");
         FileUtil.deleteDirectory(output);
 
-//        outputDirectory(output, wad.directory);
+        outputDirectory(output, wad.directory);
+        // textures rely on graphics from the directory
+        outputTextures(output, wad);
 
         WadMap map = wad.maps.get("MAP01");
 
@@ -33,7 +35,7 @@ public class Main {
         }
         renderer.render();
 
-//        renderMap(output, map);
+        //renderMap(output, map);
     }
 
     private static void outputDirectory(File output, WadDirectory directory) throws IOException {
@@ -43,13 +45,14 @@ public class Main {
             var file = new File(dir, String.format("graphics/%s.png", entry.getKey()));
             FileUtil.ensureParentExist(file);
             ImageIO.write(graphicsRenderer.render(entry.getValue()), "PNG", file);
+            graphics.put(entry.getKey(), file);
         }
 
         for (var entry : directory.flats.entrySet()) {
             var file = new File(dir, String.format("flat/%s.png", entry.getKey()));
             FileUtil.ensureParentExist(file);
             ImageIO.write(graphicsRenderer.render(entry.getValue()), "PNG", file);
-            flats.put(entry.getKey(), file);
+            graphics.put(entry.getKey(), file);
         }
 
         for (var entry : directory.sounds.entrySet()) {
@@ -63,11 +66,21 @@ public class Main {
         }
     }
 
+    private static void outputTextures(File output, WadFile wad) throws IOException {
+        File dir = new File(output, "textures");
+
+        for (var entry : wad.textures.entrySet()) {
+            var file = new File(dir, String.format("%s.png", entry.getKey()));
+            FileUtil.ensureParentExist(file);
+            ImageIO.write(graphicsRenderer.render(entry.getValue(), wad, graphics), "PNG", file);
+        }
+    }
+
     private static void renderMap(File output, WadMap map) throws IOException {
         File file = new File(output, String.format("%s.png", map.name));
         FileUtil.ensureParentExist(file);
         try (MapRenderer mapRenderer = new MapRenderer(map)) {
-            mapRenderer.renderFlats(flats);
+            mapRenderer.renderFlats(graphics);
             mapRenderer.renderThings();
             mapRenderer.renderBSP();
             ImageIO.write(mapRenderer.getImage(), "PNG", file);

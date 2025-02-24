@@ -82,7 +82,7 @@ public class WadFileReader {
                 case "REJECT" -> readReject(lumpSize);
                 case "BLOCKMAP" -> readBlockmap(lumpSize);
                 // common lumps
-                case "TEXTURE1", "TEXTURE2" -> System.out.format("Skip %s of size %d\n", lumpName, lumpSize);
+                case "TEXTURE1", "TEXTURE2" -> readTexture(lumpSize);
                 case "PNAMES" -> readPNames(lumpSize);
                 case "GENMIDI" -> readGenMidi(lumpSize);
                 case "DMXGUS", "DMXGUSC" -> readDmxGus(lumpSize);
@@ -303,8 +303,68 @@ public class WadFileReader {
         System.out.format("Reading BLOCKMAP for map %s of size %d\n", currentMap.name, lumpSize);
     }
 
+    private void readTexture(int lumpSize) throws WadException {
+        int lumpStart = reader.getOffset();
+        int textureCount = reader.readInt32();
+        int[] textureOffsets = new int[textureCount];
+        for (int i = 0; i < textureCount; i++) {
+            textureOffsets[i] = reader.readInt32();
+        }
+
+        int headerEnd = reader.getOffset();
+        int totalCount = 0;
+
+        for (int i = 0; i < textureCount; i++) {
+            int textureStart = lumpStart + textureOffsets[i];
+            if (textureStart < headerEnd || textureStart >= lumpStart + lumpSize) {
+                throw new WadException("Texture is outside of lump");
+            }
+
+            reader.setOffset(textureStart);
+            Texture texture = readMapTexture();
+            int textureEnd = reader.getOffset();
+            totalCount += textureEnd - textureStart;
+
+            if (wad.textures.put(texture.name(), texture) != null) {
+                throw new WadException("Duplicate texture %s", texture.name());
+            }
+        }
+
+        if (totalCount > lumpSize) {
+            throw new WadException("Read more texture data (%d) than expected (%d)", totalCount, lumpSize);
+        }
+    }
+
+    private Texture readMapTexture() {
+        String name = reader.readNullPaddedAsciiString(8);
+        int masked = reader.readInt32();
+        int width = reader.readInt16();
+        int height = reader.readInt16();
+        reader.readInt32(); // column directory
+        int patchCount = reader.readInt16();
+        TexturePatch[] patches = new TexturePatch[patchCount];
+        for (int i = 0; i < patchCount; i++) {
+            patches[i] = readTexturePatch();
+        }
+        return new Texture(name, masked, width, height, patches);
+    }
+
+    private TexturePatch readTexturePatch() {
+        int xOffset = reader.readInt16();
+        int yOffset = reader.readInt16();
+        int patchNumber = reader.readInt16();
+        reader.readInt16(); // step dir
+        reader.readInt16(); // color map
+        return new TexturePatch(xOffset, yOffset, patchNumber);
+    }
+
     private void readPNames(int lumpSize) {
         System.out.format("Reading PNAMES of size %d\n", lumpSize);
+        int patchCount = reader.readInt32();
+        wad.pnames = new String[patchCount];
+        for (int i = 0; i < patchCount; i++) {
+            wad.pnames[i] = reader.readNullPaddedAsciiString(8);
+        }
     }
 
     private void readGenMidi(int lumpSize) {
