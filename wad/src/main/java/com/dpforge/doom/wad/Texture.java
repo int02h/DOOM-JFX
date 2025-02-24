@@ -7,4 +7,5 @@ public record Texture(
         int height,
         TexturePatch[] patches
 ) {
+    public static final String NO_TEXTURE = "-";
 }

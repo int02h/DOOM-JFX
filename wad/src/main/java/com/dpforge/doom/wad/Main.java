@@ -12,7 +12,7 @@ public class Main {
     private static final Map<String, File> graphics = new HashMap<>();
 
     public static void main(String[] args) throws IOException, WadException {
-        File wadFile = new File("../doom-jfx/__doom2.wad");
+        File wadFile = new File("../doom-jfx/doom2.wad");
         WadFile wad = new WadFileReader().read(wadFile);
 
         graphicsRenderer.setPalette(wad.palettes[0]);
@@ -34,6 +34,7 @@ public class Main {
             }
         }
         renderer.render();
+        ImageIO.write(renderer.image, "PNG", new File(output, "frame.png"));
 
         //renderMap(output, map);
     }
