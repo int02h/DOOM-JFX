@@ -20,8 +20,20 @@ public class Main {
         var output = new File("output");
         FileUtil.deleteDirectory(output);
 
-        outputDirectory(output, wad.directory);
-        renderMap(output, wad.maps.get("MAP01"));
+//        outputDirectory(output, wad.directory);
+
+        WadMap map = wad.maps.get("MAP01");
+
+        var renderer = new GameRenderer(map);
+        for (Thing t : map.things) {
+            if (t.type() == ThingType.PLAYER_1_START) {
+                renderer.setCamera(t.x(), t.y(), 90f);
+                break;
+            }
+        }
+        renderer.render();
+
+//        renderMap(output, map);
     }
 
     private static void outputDirectory(File output, WadDirectory directory) throws IOException {
@@ -53,6 +65,7 @@ public class Main {
 
     private static void renderMap(File output, WadMap map) throws IOException {
         File file = new File(output, String.format("%s.png", map.name));
+        FileUtil.ensureParentExist(file);
         try (MapRenderer mapRenderer = new MapRenderer(map)) {
             mapRenderer.renderFlats(flats);
             mapRenderer.renderThings();
