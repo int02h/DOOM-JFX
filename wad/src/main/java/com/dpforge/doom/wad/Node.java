@@ -6,6 +6,8 @@ public record Node(
         int partitionLineDX,
         int partitionLineDY,
         BBox rightBBox,
-        BBox leftBBox
+        BBox leftBBox,
+        int rightChild,
+        int leftChild
 ) {
 }

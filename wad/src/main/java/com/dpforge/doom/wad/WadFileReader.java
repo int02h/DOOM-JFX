@@ -250,23 +250,28 @@ public class WadFileReader {
         currentMap.nodes = new Node[nodeCount];
 
         for (int i = 0; i < nodeCount; i++) {
-            int partitionLineX = reader.readInt16();
-            int partitionLineY = reader.readInt16();
-            int partitionLineDX = reader.readInt16();
-            int partitionLineDY = reader.readInt16();
+            int partitionLineX = reader.readSignedInt16();
+            int partitionLineY = reader.readSignedInt16();
+            int partitionLineDX = reader.readSignedInt16();
+            int partitionLineDY = reader.readSignedInt16();
             BBox rightBBox = readBBox();
             BBox leftBBox = readBBox();
+            int rightChild = reader.readInt16();
+            int leftChild = reader.readInt16();
             currentMap.nodes[i] = new Node(
-                    partitionLineX, partitionLineY, partitionLineDX, partitionLineDY, rightBBox, leftBBox
+                    partitionLineX, partitionLineY,
+                    partitionLineDX, partitionLineDY,
+                    rightBBox, leftBBox,
+                    rightChild, leftChild
             );
         }
     }
 
     private BBox readBBox() {
-        int top = reader.readInt16();
-        int bottom = reader.readInt16();
-        int left = reader.readInt16();
-        int right = reader.readInt16();
+        int top = reader.readSignedInt16();
+        int bottom = reader.readSignedInt16();
+        int left = reader.readSignedInt16();
+        int right = reader.readSignedInt16();
         return new BBox(top, bottom, left, right);
     }
 

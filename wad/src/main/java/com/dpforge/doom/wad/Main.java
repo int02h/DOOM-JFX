@@ -56,6 +56,7 @@ public class Main {
         try (MapRenderer mapRenderer = new MapRenderer(map)) {
             mapRenderer.renderFlats(flats);
             mapRenderer.renderThings();
+            mapRenderer.renderBSP();
             ImageIO.write(mapRenderer.getImage(), "PNG", file);
         }
     }

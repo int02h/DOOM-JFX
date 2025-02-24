@@ -120,6 +120,33 @@ public class MapRenderer implements Closeable {
         }
     }
 
+    public void renderBSP() {
+        g.setStroke(new BasicStroke(4f / scale));
+        for (Node n : map.nodes) {
+            g.setColor(Color.RED);
+            g.drawRect(
+                    x(n.leftBBox().left()),
+                    y(n.leftBBox().top()),
+                    (n.leftBBox().right() - n.leftBBox().left()) / scale,
+                    (n.leftBBox().top() - n.leftBBox().bottom()) / scale
+            );
+            g.setColor(Color.GREEN);
+            g.drawRect(
+                    x(n.rightBBox().left()),
+                    y(n.rightBBox().top()),
+                    (n.rightBBox().right() - n.rightBBox().left()) / scale,
+                    (n.rightBBox().top() - n.rightBBox().bottom()) / scale
+            );
+            g.setColor(Color.YELLOW);
+            g.drawLine(
+                    x(n.partitionLineX()),
+                    y(n.partitionLineY()),
+                    x(n.partitionLineX() + n.partitionLineDX()),
+                    y(n.partitionLineY() + n.partitionLineDY())
+            );
+        }
+    }
+
     private List<Path2D> extractPolygons(int sectorNumber) {
         List<Integer> sides = sectorToSides.get(sectorNumber);
         List<Pair<Vertex, Vertex>> vertexes = new ArrayList<>();
