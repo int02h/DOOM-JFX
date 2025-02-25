@@ -92,12 +92,12 @@ public class MapRenderer implements Closeable {
         g.dispose();
     }
 
-    public void renderFlats(Map<String, File> flats) throws IOException {
+    public void renderFlats(Map<String, BufferedImage> flats) {
         for (int i = 0; i < map.sectors.length; i++) {
             Sector sector = map.sectors[i];
             List<Path2D> polygons = extractPolygons(i);
             for (Path2D polygon : polygons) {
-                BufferedImage texture = ImageIO.read(flats.get(sector.floorTexture()));
+                BufferedImage texture = flats.get(sector.floorTexture());
                 // Define a TexturePaint with the loaded texture
                 Rectangle rect = new Rectangle(0, 0, texture.getWidth(), texture.getHeight());
                 TexturePaint texturePaint = new TexturePaint(texture, rect);

@@ -1,13 +1,10 @@
 package com.dpforge.doom.wad;
 
-import javax.imageio.ImageIO;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.geom.Path2D;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
 import java.util.Map;
 
 public class GameRenderer {
@@ -22,9 +19,10 @@ public class GameRenderer {
     private static final int SCREEN_WIDTH = 320;
     private static final int SCREEN_HEIGHT = 240;
     private static final int PLAYER_HEIGHT = 56;
+    private static final boolean NO_TEXTURING = false;
 
     private final WadMap map;
-    private final Map<String, File> graphics;
+    private final Map<String, BufferedImage> graphics;
 
     private final Path2D polygon = new Path2D.Double();
 
@@ -45,7 +43,7 @@ public class GameRenderer {
     final BufferedImage image;
     private final Graphics2D g;
 
-    public GameRenderer(WadMap map, Map<String, File> graphics) {
+    public GameRenderer(WadMap map, Map<String, BufferedImage> graphics) {
         this.map = map;
         this.graphics = graphics;
 
@@ -62,11 +60,14 @@ public class GameRenderer {
     }
 
     public void render() {
+        long start = System.currentTimeMillis();
         g.setColor(Color.WHITE);
         g.fillRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 
         Node root = map.nodes[map.nodes.length - 1];
         walk(root);
+        long elapsed = System.currentTimeMillis() - start;
+        System.out.format("Frame rendering took %d ms", elapsed);
     }
 
     private void walk(Node node) {
@@ -133,9 +134,10 @@ public class GameRenderer {
     }
 
     private void drawSide(SideDef side, Vertex v1, Vertex v2, SideDef backSide) {
-        g.setColor(Color.BLACK);
         Sector sector = map.sectors[side.facingSectorNumber()];
         Sector backSector = backSide != null ? map.sectors[backSide.facingSectorNumber()] : null;
+
+        int width = (int) lineLength(v1.x(), v1.y(), v2.x(), v2.y());
 
         if (!side.lowerTexture().equals(Texture.NO_TEXTURE) && backSector != null) {
             boolean p1 = projectPoint(v1.x(), v1.y(), sector.floorHeight(), xy);
@@ -149,14 +151,8 @@ public class GameRenderer {
             int cx2 = xy[0], cy2 = xy[1];
 
             if (p1 && p2 && p3 && p4) {
-//                polygon.reset();
-//                polygon.moveTo(fx1, fy1);
-//                polygon.lineTo(fx2, fy2);
-//                polygon.lineTo(cx2, cy2);
-//                polygon.lineTo(cx1, cy1);
-//                polygon.closePath();
-//                g.draw(polygon);
-                drawTexture(fx1, fy1, fx2, fy2, cx2, cy2, cx1, cy1, side.lowerTexture(), side.xOffset(), side.yOffset());
+                int height = Math.abs(backSector.floorHeight() - sector.floorHeight());
+                drawTexture(fx1, fy1, fx2, fy2, cx2, cy2, cx1, cy1, side.lowerTexture(), width, height, side.xOffset(), side.yOffset());
             }
         }
 
@@ -172,14 +168,8 @@ public class GameRenderer {
             int cx2 = xy[0], cy2 = xy[1];
 
             if (p1 && p2 && p3 && p4) {
-//                polygon.reset();
-//                polygon.moveTo(fx1, fy1);
-//                polygon.lineTo(fx2, fy2);
-//                polygon.lineTo(cx2, cy2);
-//                polygon.lineTo(cx1, cy1);
-//                polygon.closePath();
-//                g.draw(polygon);
-                drawTexture(fx1, fy1, fx2, fy2, cx2, cy2, cx1, cy1, side.middleTexture(), side.xOffset(), side.yOffset());
+                int height = Math.abs(sector.ceilingHeight() - sector.floorHeight());
+                drawTexture(fx1, fy1, fx2, fy2, cx2, cy2, cx1, cy1, side.middleTexture(), width, height, side.xOffset(), side.yOffset());
             }
         }
 
@@ -195,7 +185,8 @@ public class GameRenderer {
             int cx2 = xy[0], cy2 = xy[1];
 
             if (p1 && p2 && p3 && p4) {
-                drawTexture(fx1, fy1, fx2, fy2, cx2, cy2, cx1, cy1, side.upperTexture(), side.xOffset(), side.yOffset());
+                int height = Math.abs(sector.ceilingHeight() - backSector.ceilingHeight());
+                drawTexture(fx1, fy1, fx2, fy2, cx2, cy2, cx1, cy1, side.upperTexture(), width, height, side.xOffset(), side.yOffset());
             }
         }
     }
@@ -206,27 +197,30 @@ public class GameRenderer {
             int cx2, int cy2,
             int cx1, int cy1,
             String name,
+            int width,
+            int height,
             int tOffsetX,
             int tOffsetY
     ) {
-//        polygon.reset();
-//        polygon.moveTo(fx1, fy1);
-//        polygon.lineTo(fx2, fy2);
-//        polygon.lineTo(cx2, cy2);
-//        polygon.lineTo(cx1, cy1);
-//        polygon.closePath();
-//        g.draw(polygon);
-        if (cx1 == cx2) {
+        if (cx1 == cx2 || fy1 <= cy1 || fy2 <= cy2) {
             return;
         }
 
-        BufferedImage texture;
-        try {
-            System.out.format("Texture %s\n", name);
-            texture = ImageIO.read(graphics.get(name.toUpperCase()));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        if (NO_TEXTURING) {
+            polygon.reset();
+            polygon.moveTo(fx1, fy1);
+            polygon.lineTo(fx2, fy2);
+            polygon.lineTo(cx2, cy2);
+            polygon.lineTo(cx1, cy1);
+            polygon.closePath();
+            g.setColor(Color.LIGHT_GRAY);
+            g.fill(polygon);
+            g.setColor(Color.BLACK);
+            g.draw(polygon);
+            return;
         }
+
+        BufferedImage texture = graphics.get(name.toUpperCase());
 
         double length = lineLength(cx1, cy1, cx2, cy2);
         double dx = (cx2 - cx1) / length;
@@ -237,31 +231,33 @@ public class GameRenderer {
         double cy = cy1;
         double fy = fy1;
 
+        double widthScale = 1d * width / length;
+        double tx = tOffsetX;
+
         for (int i = 0; i <= length; i++) {
-            drawTextureColumn(texture, (int) (x - cx1 + tOffsetX), tOffsetY, x, fy, cy);
+            drawTextureColumn(texture, height, (int) tx, tOffsetY, x, fy, cy);
             cy += dcy;
             fy += dfy;
             x += dx;
+            tx += widthScale;
         }
     }
 
-    private void drawTextureColumn(BufferedImage texture, int tx, int tyOffset, double x, double y1, double y2) {
+    private void drawTextureColumn(BufferedImage texture, int height, int tx, int tyOffset, double x, double y1, double y2) {
         if (tx < 0) return;
+
+        double scale = 1f * height / Math.abs(y2 - y1);
+
         double y = y1;
         double length = Math.abs(y2 - y1);
         double dy = (y2 - y1) / length;
         double ty = tyOffset;
-        double dty = texture.getHeight() / length;
         for (int i = 0; i < length; i++) {
-            try {
-                int pixel = texture.getRGB(tx % texture.getWidth(), ((int) ty) % texture.getHeight());
-                g.setColor(new Color(pixel));
-                g.drawRect((int) x, (int) y, 1, 1);
-                y += dy;
-                ty += dty;
-            } catch (Exception e) {
-                System.err.format("Ooopn\n");
-            }
+            int pixel = texture.getRGB(tx % texture.getWidth(), ((int) ty) % texture.getHeight());
+            if (x < 0 || x >= image.getWidth() || y < 0 || y >= image.getHeight()) continue;
+            image.setRGB((int) x, (int) y, pixel);
+            y += dy;
+            ty += scale;
         }
     }
 
@@ -274,27 +270,19 @@ public class GameRenderer {
         double leftAngle = Math.toRadians(cameraAngle) - Math.toRadians(FOV) / 2;
         double rightAngle = Math.toRadians(cameraAngle) + Math.toRadians(FOV) / 2;
 
-        // AABB corners
-        int[][] corners = {
-                {bbox.left(), bbox.top()}, // Top-left
-                {bbox.right(), bbox.top()}, // Top-right
-                {bbox.left(), bbox.bottom()}, // Bottom-left
-                {bbox.right(), bbox.bottom()}  // Bottom-right
-        };
-
         // Check if any corner is inside the frustum
-        for (int[] corner : corners) {
-            if (isPointInFrustum(corner[0], corner[1], leftAngle, rightAngle)) {
-                return true;
-            }
+        if (isPointInFrustum(bbox.left(), bbox.top(), leftAngle, rightAngle)) {
+            return true;
         }
-
-        double[][] edges = {
-                {bbox.left(), bbox.top(), bbox.right(), bbox.top()}, // Top edge
-                {bbox.right(), bbox.top(), bbox.right(), bbox.bottom()}, // Right edge
-                {bbox.left(), bbox.bottom(), bbox.right(), bbox.bottom()}, // Bottom edge
-                {bbox.left(), bbox.top(), bbox.left(), bbox.bottom()}  // Left edge
-        };
+        if (isPointInFrustum(bbox.right(), bbox.top(), leftAngle, rightAngle)) {
+            return true;
+        }
+        if (isPointInFrustum(bbox.left(), bbox.bottom(), leftAngle, rightAngle)) {
+            return true;
+        }
+        if (isPointInFrustum(bbox.right(), bbox.bottom(), leftAngle, rightAngle)) {
+            return true;
+        }
 
         // Compute frustum boundary lines
         double frustumFar = 10000; // Arbitrary large distance for frustum lines
@@ -304,11 +292,21 @@ public class GameRenderer {
         double rightEndY = cameraY + Math.sin(rightAngle) * frustumFar;
 
         // Check if any AABB edge intersects the frustum
-        for (double[] edge : edges) {
-            if (linesIntersect(cameraX, cameraY, leftEndX, leftEndY, edge[0], edge[1], edge[2], edge[3]) ||
-                    linesIntersect(cameraX, cameraY, rightEndX, rightEndY, edge[0], edge[1], edge[2], edge[3])) {
-                return true;
-            }
+        if (linesIntersect(cameraX, cameraY, leftEndX, leftEndY, bbox.left(), bbox.top(), bbox.right(), bbox.top()) ||
+                linesIntersect(cameraX, cameraY, rightEndX, rightEndY, bbox.left(), bbox.top(), bbox.right(), bbox.top())) {
+            return true;
+        }
+        if (linesIntersect(cameraX, cameraY, leftEndX, leftEndY, bbox.right(), bbox.top(), bbox.right(), bbox.bottom()) ||
+                linesIntersect(cameraX, cameraY, rightEndX, rightEndY, bbox.right(), bbox.top(), bbox.right(), bbox.bottom())) {
+            return true;
+        }
+        if (linesIntersect(cameraX, cameraY, leftEndX, leftEndY, bbox.left(), bbox.bottom(), bbox.right(), bbox.bottom()) ||
+                linesIntersect(cameraX, cameraY, rightEndX, rightEndY, bbox.left(), bbox.bottom(), bbox.right(), bbox.bottom())) {
+            return true;
+        }
+        if (linesIntersect(cameraX, cameraY, leftEndX, leftEndY, bbox.left(), bbox.top(), bbox.left(), bbox.bottom()) ||
+                linesIntersect(cameraX, cameraY, rightEndX, rightEndY, bbox.left(), bbox.top(), bbox.left(), bbox.bottom())) {
+            return true;
         }
 
         return false;

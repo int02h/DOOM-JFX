@@ -1,6 +1,7 @@
 package com.dpforge.doom.wad;
 
 import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
@@ -9,7 +10,9 @@ import java.util.Map;
 public class Main {
     private static final GraphicRenderer graphicsRenderer = new GraphicRenderer();
     private static final SoundRenderer soundRenderer = new SoundRenderer();
-    private static final Map<String, File> graphics = new HashMap<>();
+    private static final Map<String, BufferedImage> graphics = new HashMap<>();
+
+    private static final boolean WRITE_RESOURCE_TO_FILE = false;
 
     public static void main(String[] args) throws IOException, WadException {
         File wadFile = new File("../doom-jfx/doom2.wad");
@@ -34,7 +37,9 @@ public class Main {
             }
         }
         renderer.render();
-        ImageIO.write(renderer.image, "PNG", new File(output, "frame.png"));
+        File frameFile = new File(output, "frame.png");
+        FileUtil.ensureParentExist(frameFile);
+        ImageIO.write(renderer.image, "PNG", frameFile);
 
         //renderMap(output, map);
     }
@@ -44,22 +49,24 @@ public class Main {
 
         for (var entry : directory.graphics.entrySet()) {
             var file = new File(dir, String.format("graphics/%s.png", entry.getKey()));
-            FileUtil.ensureParentExist(file);
-            ImageIO.write(graphicsRenderer.render(entry.getValue()), "PNG", file);
-            graphics.put(entry.getKey(), file);
+            BufferedImage render = graphicsRenderer.render(entry.getValue());
+            writeImage(render, file);
+            graphics.put(entry.getKey(), render);
         }
 
         for (var entry : directory.flats.entrySet()) {
             var file = new File(dir, String.format("flat/%s.png", entry.getKey()));
-            FileUtil.ensureParentExist(file);
-            ImageIO.write(graphicsRenderer.render(entry.getValue()), "PNG", file);
-            graphics.put(entry.getKey(), file);
+            BufferedImage render = graphicsRenderer.render(entry.getValue());
+            writeImage(render, file);
+            graphics.put(entry.getKey(), render);
         }
 
-        for (var entry : directory.sounds.entrySet()) {
-            var file = new File(dir, String.format("sound/%s.wav", entry.getKey()));
-            FileUtil.ensureParentExist(file);
-            soundRenderer.renderWav(file, entry.getValue());
+        if (WRITE_RESOURCE_TO_FILE) {
+            for (var entry : directory.sounds.entrySet()) {
+                var file = new File(dir, String.format("sound/%s.wav", entry.getKey()));
+                FileUtil.ensureParentExist(file);
+                soundRenderer.renderWav(file, entry.getValue());
+            }
         }
 
         for (var d : directory.directories) {
@@ -72,9 +79,9 @@ public class Main {
 
         for (var entry : wad.textures.entrySet()) {
             var file = new File(dir, String.format("%s.png", entry.getKey()));
-            FileUtil.ensureParentExist(file);
-            ImageIO.write(graphicsRenderer.render(entry.getValue(), wad, graphics), "PNG", file);
-            graphics.put(entry.getKey(), file);
+            BufferedImage render = graphicsRenderer.render(entry.getValue(), wad, graphics);
+            writeImage(render, file);
+            graphics.put(entry.getKey(), render);
         }
     }
 
@@ -85,7 +92,14 @@ public class Main {
             mapRenderer.renderFlats(graphics);
             mapRenderer.renderThings();
             mapRenderer.renderBSP();
-            ImageIO.write(mapRenderer.getImage(), "PNG", file);
+            writeImage(mapRenderer.getImage(), file);
+        }
+    }
+
+    private static void writeImage(BufferedImage image, File file) throws IOException {
+        if (WRITE_RESOURCE_TO_FILE) {
+            FileUtil.ensureParentExist(file);
+            ImageIO.write(image, "PNG", file);
         }
     }
 }
