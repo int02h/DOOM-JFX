@@ -26,7 +26,7 @@ public class Main {
 
         WadMap map = wad.maps.get("MAP01");
 
-        var renderer = new GameRenderer(map);
+        var renderer = new GameRenderer(map, graphics);
         for (Thing t : map.things) {
             if (t.type() == ThingType.PLAYER_1_START) {
                 renderer.setCamera(t.x(), t.y(), 90f);
@@ -74,6 +74,7 @@ public class Main {
             var file = new File(dir, String.format("%s.png", entry.getKey()));
             FileUtil.ensureParentExist(file);
             ImageIO.write(graphicsRenderer.render(entry.getValue(), wad, graphics), "PNG", file);
+            graphics.put(entry.getKey(), file);
         }
     }
 
