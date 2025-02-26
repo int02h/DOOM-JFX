@@ -119,9 +119,8 @@ public class GameRenderer {
 
             Vertex start = map.vertexes[line.startVertex()];
             Vertex end = map.vertexes[line.endVertex()];
-            int lineSide = (cameraX - start.x()) * (end.y() - start.y())
-                    - (cameraY - start.y()) * (end.x() - start.x());
-            boolean isFrontSide = lineSide > 0;
+            // SUGGESTION: probably the texture should be mirrored. But maybe the order of vertexes is enough.
+            boolean isFrontSide = seg.direction() == Seg.Direction.SAME;
             int sideDefNum = isFrontSide ? line.rightSideDef() : line.leftSideDef();
             if (sideDefNum == SideDef.NO_SIDE_DEF) {
                 continue;
@@ -129,11 +128,11 @@ public class GameRenderer {
             int backSideDefNum = !isFrontSide ? line.rightSideDef() : line.leftSideDef();
             SideDef backSide = backSideDefNum == SideDef.NO_SIDE_DEF ? null : map.sideDefs[backSideDefNum];
             SideDef side = map.sideDefs[sideDefNum];
-            drawSide(side, start, end, backSide);
+            drawSide(side, start, end, backSide, seg.offset());
         }
     }
 
-    private void drawSide(SideDef side, Vertex v1, Vertex v2, SideDef backSide) {
+    private void drawSide(SideDef side, Vertex v1, Vertex v2, SideDef backSide, int offset) {
         Sector sector = map.sectors[side.facingSectorNumber()];
         Sector backSector = backSide != null ? map.sectors[backSide.facingSectorNumber()] : null;
 
@@ -146,13 +145,13 @@ public class GameRenderer {
             int fx2 = xy[0], fy2 = xy[1];
 
             boolean p3 = projectPoint(v1.x(), v1.y(), backSector.floorHeight(), xy);
-            int cx1 = xy[0], cy1 = xy[1];
+            int cy1 = xy[1];
             boolean p4 = projectPoint(v2.x(), v2.y(), backSector.floorHeight(), xy);
-            int cx2 = xy[0], cy2 = xy[1];
+            int cy2 = xy[1];
 
             if (p1 && p2 && p3 && p4) {
                 int height = Math.abs(backSector.floorHeight() - sector.floorHeight());
-                drawTexture(fx1, fy1, fx2, fy2, cx2, cy2, cx1, cy1, side.lowerTexture(), width, height, side.xOffset(), side.yOffset());
+                drawTexture(fx1, fy1, cy1, fx2, fy2, cy2, side.lowerTexture(), width, height, side.xOffset() + offset, side.yOffset());
             }
         }
 
@@ -163,13 +162,13 @@ public class GameRenderer {
             int fx2 = xy[0], fy2 = xy[1];
 
             boolean p3 = projectPoint(v1.x(), v1.y(), sector.ceilingHeight(), xy);
-            int cx1 = xy[0], cy1 = xy[1];
+            int cy1 = xy[1];
             boolean p4 = projectPoint(v2.x(), v2.y(), sector.ceilingHeight(), xy);
-            int cx2 = xy[0], cy2 = xy[1];
+            int cy2 = xy[1];
 
             if (p1 && p2 && p3 && p4) {
                 int height = Math.abs(sector.ceilingHeight() - sector.floorHeight());
-                drawTexture(fx1, fy1, fx2, fy2, cx2, cy2, cx1, cy1, side.middleTexture(), width, height, side.xOffset(), side.yOffset());
+                drawTexture(fx1, fy1, cy1, fx2, fy2, cy2, side.middleTexture(), width, height, side.xOffset() + offset, side.yOffset());
             }
         }
 
@@ -180,38 +179,36 @@ public class GameRenderer {
             int fx2 = xy[0], fy2 = xy[1];
 
             boolean p3 = projectPoint(v1.x(), v1.y(), sector.ceilingHeight(), xy);
-            int cx1 = xy[0], cy1 = xy[1];
+            int cy1 = xy[1];
             boolean p4 = projectPoint(v2.x(), v2.y(), sector.ceilingHeight(), xy);
-            int cx2 = xy[0], cy2 = xy[1];
+            int cy2 = xy[1];
 
             if (p1 && p2 && p3 && p4) {
                 int height = Math.abs(sector.ceilingHeight() - backSector.ceilingHeight());
-                drawTexture(fx1, fy1, fx2, fy2, cx2, cy2, cx1, cy1, side.upperTexture(), width, height, side.xOffset(), side.yOffset());
+                drawTexture(fx1, fy1, cy1, fx2, fy2, cy2, side.upperTexture(), width, height, side.xOffset() + offset, side.yOffset());
             }
         }
     }
 
     private void drawTexture(
-            int fx1, int fy1,
-            int fx2, int fy2,
-            int cx2, int cy2,
-            int cx1, int cy1,
+            int x1, int fy1, int cy1,
+            int x2, int fy2, int cy2,
             String name,
             int width,
             int height,
             int tOffsetX,
             int tOffsetY
     ) {
-        if (cx1 == cx2 || fy1 <= cy1 || fy2 <= cy2) {
+        if (x1 == x2 || fy1 <= cy1 || fy2 <= cy2) {
             return;
         }
 
         if (NO_TEXTURING) {
             polygon.reset();
-            polygon.moveTo(fx1, fy1);
-            polygon.lineTo(fx2, fy2);
-            polygon.lineTo(cx2, cy2);
-            polygon.lineTo(cx1, cy1);
+            polygon.moveTo(x1, fy1);
+            polygon.lineTo(x2, fy2);
+            polygon.lineTo(x2, cy2);
+            polygon.lineTo(x1, cy1);
             polygon.closePath();
             g.setColor(Color.LIGHT_GRAY);
             g.fill(polygon);
@@ -222,12 +219,12 @@ public class GameRenderer {
 
         BufferedImage texture = graphics.get(name.toUpperCase());
 
-        float length = lineLength(cx1, cy1, cx2, cy2);
-        float dx = (cx2 - cx1) / length;
+        float length = lineLength(x1, cy1, x2, cy2);
+        float dx = (x2 - x1) / length;
         float dcy = (cy2 - cy1) / length;
         float dfy = (fy2 - fy1) / length;
 
-        float x = cx1;
+        float x = x1;
         float cy = cy1;
         float fy = fy1;
 
