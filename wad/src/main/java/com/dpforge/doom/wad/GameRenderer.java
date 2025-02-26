@@ -137,7 +137,7 @@ public class GameRenderer {
         Sector sector = map.sectors[side.facingSectorNumber()];
         Sector backSector = backSide != null ? map.sectors[backSide.facingSectorNumber()] : null;
 
-        int width = (int) lineLength(v1.x(), v1.y(), v2.x(), v2.y());
+        int width = Math.round(lineLength(v1.x(), v1.y(), v2.x(), v2.y()));
 
         if (!side.lowerTexture().equals(Texture.NO_TEXTURE) && backSector != null) {
             boolean p1 = projectPoint(v1.x(), v1.y(), sector.floorHeight(), xy);
@@ -222,20 +222,20 @@ public class GameRenderer {
 
         BufferedImage texture = graphics.get(name.toUpperCase());
 
-        double length = lineLength(cx1, cy1, cx2, cy2);
-        double dx = (cx2 - cx1) / length;
-        double dcy = (cy2 - cy1) / length;
-        double dfy = (fy2 - fy1) / length;
+        float length = lineLength(cx1, cy1, cx2, cy2);
+        float dx = (cx2 - cx1) / length;
+        float dcy = (cy2 - cy1) / length;
+        float dfy = (fy2 - fy1) / length;
 
-        double x = cx1;
-        double cy = cy1;
-        double fy = fy1;
+        float x = cx1;
+        float cy = cy1;
+        float fy = fy1;
 
-        double widthScale = 1d * width / length;
-        double tx = tOffsetX;
+        float widthScale = 1f * width / length;
+        float tx = tOffsetX;
 
         for (int i = 0; i <= length; i++) {
-            drawTextureColumn(texture, height, (int) tx, tOffsetY, x, fy, cy);
+            drawTextureColumn(texture, height, Math.round(tx), tOffsetY, Math.round(x), fy, cy);
             cy += dcy;
             fy += dfy;
             x += dx;
@@ -243,19 +243,19 @@ public class GameRenderer {
         }
     }
 
-    private void drawTextureColumn(BufferedImage texture, int height, int tx, int tyOffset, double x, double y1, double y2) {
+    private void drawTextureColumn(BufferedImage texture, int height, int tx, int tyOffset, int x, float y1, float y2) {
         if (tx < 0) return;
 
-        double scale = 1f * height / Math.abs(y2 - y1);
+        float scale = 1f * height / Math.abs(y2 - y1);
 
-        double y = y1;
-        double length = Math.abs(y2 - y1);
-        double dy = (y2 - y1) / length;
-        double ty = tyOffset;
+        float y = y1;
+        float length = Math.abs(y2 - y1);
+        float dy = (y2 - y1) / length;
+        float ty = tyOffset;
         for (int i = 0; i < length; i++) {
-            int pixel = texture.getRGB(tx % texture.getWidth(), ((int) ty) % texture.getHeight());
+            int pixel = texture.getRGB(tx % texture.getWidth(), Math.round(ty) % texture.getHeight());
             if (x < 0 || x >= image.getWidth() || y < 0 || y >= image.getHeight()) continue;
-            image.setRGB((int) x, (int) y, pixel);
+            image.setRGB(x, Math.round(y), pixel);
             y += dy;
             ty += scale;
         }
@@ -350,34 +350,34 @@ public class GameRenderer {
 
     private boolean projectPoint(int x, int y, int z, int[] output) {
         // Convert angles to radians
-        double cameraRad = Math.toRadians(cameraAngle);
-        double fovRad = Math.toRadians(FOV);
+        float cameraRad = (float) Math.toRadians(cameraAngle);
+        float fovRad = (float) Math.toRadians(FOV);
 
         // Step 1: Translate world coordinates (move camera to the origin)
-        double Xp = x - cameraX;
-        double Yp = y - cameraY;
-        double Zp = z - (cameraZ + PLAYER_HEIGHT);
+        float Xp = x - cameraX;
+        float Yp = y - cameraY;
+        float Zp = z - (cameraZ + PLAYER_HEIGHT);
 
         // Step 2: Rotate around Z-axis (align camera view)
-        double Xr = Xp * Math.cos(-cameraRad) - Yp * Math.sin(-cameraRad);
-        double Yr = -Xp * Math.sin(-cameraRad) + Yp * Math.cos(-cameraRad);
-        double Zr = Zp;  // No change in depth
+        float Xr = (float) (Xp * Math.cos(-cameraRad) - Yp * Math.sin(-cameraRad));
+        float Yr = (float) (-Xp * Math.sin(-cameraRad) + Yp * Math.cos(-cameraRad));
+        float Zr = Zp;  // No change in depth
 
         // Step 3: Perspective Projection
         if (Xr <= 0) return false;  // If behind the camera, don't render
 
-        double S = SCREEN_WIDTH / (2 * Math.tan(fovRad / 2));
+        float S = (float) (SCREEN_WIDTH / (2 * Math.tan(fovRad / 2)));
 
-        int screenX = (int) (SCREEN_WIDTH / 2f + (Yr / Xr) * S);
-        int screenY = (int) (SCREEN_HEIGHT / 2f - (Zr / Xr) * S);
+        int screenX = Math.round(SCREEN_WIDTH / 2f + (Yr / Xr) * S);
+        int screenY = Math.round(SCREEN_HEIGHT / 2f - (Zr / Xr) * S);
         output[0] = screenX;
         output[1] = screenY;
 
         return true;
     }
 
-    private static double lineLength(int x1, int y1, int x2, int y2) {
-        return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+    private static float lineLength(int x1, int y1, int x2, int y2) {
+        return (float) Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
     }
 
 }
