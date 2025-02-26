@@ -172,7 +172,7 @@ public class GameRenderer {
             }
         }
 
-        if (!(side.upperTexture()).equals(Texture.NO_TEXTURE) & backSector != null) {
+        if (!side.upperTexture().equals(Texture.NO_TEXTURE) & backSector != null) {
             boolean p1 = projectPoint(v1.x(), v1.y(), backSector.ceilingHeight(), xy);
             int fx1 = xy[0], fy1 = xy[1];
             boolean p2 = projectPoint(v2.x(), v2.y(), backSector.ceilingHeight(), xy);
@@ -248,13 +248,16 @@ public class GameRenderer {
         float y = y1;
         float length = Math.abs(y2 - y1);
         float dy = (y2 - y1) / length;
-        float ty = tyOffset;
+
+        float ty = (y2 > y1) ? tyOffset : tyOffset + height;
+        float tyStep = (y2 > y1) ? scale : -scale;
+
         for (int i = 0; i < length; i++) {
             int pixel = texture.getRGB(tx % texture.getWidth(), Math.round(ty) % texture.getHeight());
             if (x < 0 || x >= image.getWidth() || y < 0 || y >= image.getHeight()) continue;
             image.setRGB(x, Math.round(y), pixel);
             y += dy;
-            ty += scale;
+            ty += tyStep;
         }
     }
 
