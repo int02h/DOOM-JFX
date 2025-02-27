@@ -199,7 +199,7 @@ public class GameRenderer {
             int tOffsetX,
             int tOffsetY
     ) {
-        if (x1 == x2 || fy1 <= cy1 || fy2 <= cy2) {
+        if (x1 == x2 || fy1 >= cy1 || fy2 >= cy2) {
             return;
         }
 
@@ -249,15 +249,15 @@ public class GameRenderer {
         float length = Math.abs(y2 - y1);
         float dy = (y2 - y1) / length;
 
-        float ty = (y2 > y1) ? tyOffset : tyOffset + height;
-        float tyStep = (y2 > y1) ? scale : -scale;
+        // DOOM renders wall textures from top to bottom
+        float ty = tyOffset + height;
 
         for (int i = 0; i < length; i++) {
             int pixel = texture.getRGB(tx % texture.getWidth(), Math.round(ty) % texture.getHeight());
             if (x < 0 || x >= image.getWidth() || y < 0 || y >= image.getHeight()) continue;
-            image.setRGB(x, Math.round(y), pixel);
+            image.setRGB(x, SCREEN_HEIGHT - Math.round(y), pixel);
             y += dy;
-            ty += tyStep;
+            ty -= scale;
         }
     }
 
@@ -369,7 +369,7 @@ public class GameRenderer {
         float S = (float) (SCREEN_WIDTH / (2 * Math.tan(fovRad / 2)));
 
         int screenX = Math.round(SCREEN_WIDTH / 2f + (Yr / Xr) * S);
-        int screenY = Math.round(SCREEN_HEIGHT / 2f - (Zr / Xr) * S);
+        int screenY = Math.round(SCREEN_HEIGHT / 2f + (Zr / Xr) * S);
         output[0] = screenX;
         output[1] = screenY;
 
