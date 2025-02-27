@@ -5,6 +5,8 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.geom.Path2D;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 public class GameRenderer {
@@ -40,6 +42,12 @@ public class GameRenderer {
 
     private final int[] xy = new int[2];
 
+    private final List<VisPlane> visPlanes = new ArrayList<>(128);
+    private final int[] floorClip = new int[SCREEN_WIDTH];
+    private final int[] ceilingClip = new int[SCREEN_WIDTH];
+    private VisPlane floorPlane;
+    private VisPlane ceilingPlane;
+
     final BufferedImage image;
     private final Graphics2D g;
 
@@ -49,7 +57,7 @@ public class GameRenderer {
 
         image = new BufferedImage(SCREEN_WIDTH, SCREEN_HEIGHT, BufferedImage.TYPE_INT_ARGB);
         g = image.createGraphics();
-        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
     }
 
     public void setCamera(int x, int y, float angle) {
@@ -64,8 +72,14 @@ public class GameRenderer {
         g.setColor(Color.WHITE);
         g.fillRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 
+        for (int i = 0; i < SCREEN_WIDTH; i++) {
+            floorClip[i] = SCREEN_HEIGHT;
+            ceilingClip[i] = -1;
+        }
+
         Node root = map.nodes[map.nodes.length - 1];
         walk(root);
+        drawVisPlanes();
         long elapsed = System.currentTimeMillis() - start;
         System.out.format("Frame rendering took %d ms", elapsed);
     }
@@ -137,6 +151,9 @@ public class GameRenderer {
         Sector backSector = backSide != null ? map.sectors[backSide.facingSectorNumber()] : null;
 
         int width = Math.round(lineLength(v1.x(), v1.y(), v2.x(), v2.y()));
+
+        floorPlane = getVisPlane(sector.floorTexture(), sector.floorHeight());
+        ceilingPlane = getVisPlane(sector.ceilingTexture(), sector.ceilingHeight());
 
         if (!side.lowerTexture().equals(Texture.NO_TEXTURE) && backSector != null) {
             boolean p1 = projectPoint(v1.x(), v1.y(), sector.floorHeight(), xy);
@@ -220,47 +237,62 @@ public class GameRenderer {
         BufferedImage texture = graphics.get(name.toUpperCase());
 
         float length = lineLength(x1, cy1, x2, cy2);
-        float dx = (x2 - x1) / length;
-        float dcy = (cy2 - cy1) / length;
-        float dfy = (fy2 - fy1) / length;
+        float dcy = 1f * (cy2 - cy1) / Math.abs(x2 - x1);
+        float dfy = 1f * (fy2 - fy1) / Math.abs(x2 - x1);
 
-        float x = x1;
         float cy = cy1;
         float fy = fy1;
 
         float widthScale = 1f * width / length;
         float tx = tOffsetX;
 
-        for (int i = 0; i <= length; i++) {
-            drawTextureColumn(texture, height, Math.round(tx), tOffsetY, Math.round(x), fy, cy);
+        int startX = Math.min(x2, x1);
+        int endX = Math.max(x2, x1);
+
+        for (int x = startX; x <= endX; x++) {
+            drawTextureColumn(texture, height, Math.round(tx), tOffsetY, x, Math.round(fy), Math.round(cy));
             cy += dcy;
             fy += dfy;
-            x += dx;
             tx += widthScale;
         }
     }
 
-    private void drawTextureColumn(BufferedImage texture, int height, int tx, int tyOffset, int x, float y1, float y2) {
+    private void drawTextureColumn(BufferedImage texture, int height, int tx, int tyOffset, int x, int y1, int y2) {
         if (tx < 0 || x < 0 || x >= image.getWidth()) return;
+        if (y1 < 0 && y2 < 0) return;
+        if (y1 >= SCREEN_HEIGHT && y2 >= SCREEN_HEIGHT) return;
 
         float scale = 1f * height / Math.abs(y2 - y1);
 
-        // DOOM renders wall textures from top to bottom
-        float y = y2;
-        float length = Math.abs(y2 - y1);
-        float dy = (y1 - y2) / length;
-
         float ty = tyOffset;
 
-        for (int i = 0; i < length; i++) {
-            int ry = Math.round(y);
-            if (ry < 0) break;
-            if (ry < image.getHeight()) {
+        // DOOM renders wall textures from top to bottom
+        for (int y = y2; y >= y1; y--) {
+            if (y < 0) break;
+            if (y < image.getHeight()) {
                 int pixel = texture.getRGB(tx % texture.getWidth(), Math.round(ty) % texture.getHeight());
-                image.setRGB(x, SCREEN_HEIGHT - ry, pixel);
+                image.setRGB(x, SCREEN_HEIGHT - 1 - y, pixel);
             }
-            y += dy;
             ty += scale;
+        }
+
+        int bottom = Math.max(0, y1);
+        int top = y2;
+        if (bottom < floorClip[x]) {
+            int prevFloor = floorClip[x];
+            floorClip[x] = bottom;
+            if (bottom < top && prevFloor != SCREEN_HEIGHT) {
+                floorPlane.top[x] = prevFloor - 1;
+                floorPlane.bottom[x] = top + 1;
+            }
+        }
+        if (top > ceilingClip[x]) {
+            int prevCeiling = ceilingClip[x];
+            ceilingClip[x] = Math.max(ceilingClip[x], top);
+            if (top > bottom && prevCeiling != -1) {
+                ceilingPlane.top[x] = bottom - 1;
+                ceilingPlane.bottom[x] = prevCeiling + 1;
+            }
         }
     }
 
@@ -379,8 +411,50 @@ public class GameRenderer {
         return true;
     }
 
+    private VisPlane getVisPlane(String texture, int height) {
+        for (VisPlane vp : visPlanes) {
+            if (vp.texture.equals(texture) && vp.height == height) {
+                return vp;
+            }
+        }
+        VisPlane result = new VisPlane(texture, height);
+        visPlanes.add(result);
+        return result;
+    }
+
+    private void drawVisPlanes() {
+//        for (int x = 0; x < SCREEN_WIDTH; x++) {
+//            if (floorClip[x] >= ceilingClip[x]) continue;
+//            g.setColor(Color.GRAY);
+//            g.drawLine(x, SCREEN_HEIGHT - 1, x, SCREEN_HEIGHT - 1 - floorClip[x]);
+//            g.setColor(Color.BLUE);
+//            g.drawLine(x, 0, x, SCREEN_HEIGHT - 1 - ceilingClip[x]);
+//        }
+
+        for (VisPlane vp : visPlanes) {
+            for (int x = 0; x < SCREEN_WIDTH; x++) {
+                if (vp.bottom[x] > vp.top[x]) continue;
+                g.setColor(Color.GREEN);
+                g.drawLine(x, SCREEN_HEIGHT - 1 - vp.bottom[x], x, SCREEN_HEIGHT - 1 - vp.top[x]);
+            }
+        }
+    }
+
     private static float lineLength(int x1, int y1, int x2, int y2) {
         return (float) Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+    }
+
+    private static class VisPlane {
+        final String texture;
+        final int height;
+
+        final int[] top = new int[SCREEN_WIDTH];
+        final int[] bottom = new int[SCREEN_WIDTH];
+
+        private VisPlane(String texture, int height) {
+            this.texture = texture;
+            this.height = height;
+        }
     }
 
 }
