@@ -241,23 +241,26 @@ public class GameRenderer {
     }
 
     private void drawTextureColumn(BufferedImage texture, int height, int tx, int tyOffset, int x, float y1, float y2) {
-        if (tx < 0) return;
+        if (tx < 0 || x < 0 || x >= image.getWidth()) return;
 
         float scale = 1f * height / Math.abs(y2 - y1);
 
-        float y = y1;
-        float length = Math.abs(y2 - y1);
-        float dy = (y2 - y1) / length;
-
         // DOOM renders wall textures from top to bottom
-        float ty = tyOffset + height;
+        float y = y2;
+        float length = Math.abs(y2 - y1);
+        float dy = (y1 - y2) / length;
+
+        float ty = tyOffset;
 
         for (int i = 0; i < length; i++) {
-            int pixel = texture.getRGB(tx % texture.getWidth(), Math.round(ty) % texture.getHeight());
-            if (x < 0 || x >= image.getWidth() || y < 0 || y >= image.getHeight()) continue;
-            image.setRGB(x, SCREEN_HEIGHT - Math.round(y), pixel);
+            int ry = Math.round(y);
+            if (ry < 0) break;
+            if (ry < image.getHeight()) {
+                int pixel = texture.getRGB(tx % texture.getWidth(), Math.round(ty) % texture.getHeight());
+                image.setRGB(x, SCREEN_HEIGHT - ry, pixel);
+            }
             y += dy;
-            ty -= scale;
+            ty += scale;
         }
     }
 
