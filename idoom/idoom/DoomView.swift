@@ -21,12 +21,12 @@ class DoomView: NSView {
         let screen = readScreen()
         if (screen.count == 0) { return }
 
-        for x in 0..<Int(bounds.width) {
-            for y in 0..<Int(bounds.height) {
+        for x in 0..<SCREEN_WIDTH {
+            for y in 0..<SCREEN_HEIGHT {
                 // the image should be flipped vertically
                 let colorIndex = Int(screen[(SCREEN_HEIGHT - 1 - y) * SCREEN_WIDTH + x])
                 context.setFillColor(PALLETTE[colorIndex].cgColor)
-                context.fill(CGRect(x: x, y: y, width: 1, height: 1))
+                context.fill(CGRect(x: x * SCREEN_SCALE, y: y * SCREEN_SCALE, width: SCREEN_SCALE, height: SCREEN_SCALE))
             }
         }
     }

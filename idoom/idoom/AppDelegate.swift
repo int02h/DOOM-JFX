@@ -38,7 +38,7 @@ private func initGraphics(width: Int32, height: Int32) {
     DispatchQueue.main.async {
         initScreen(width: Int(width), height: (Int)(height))
         let window = NSWindow(
-            contentRect: NSRect(x: 0, y: 0, width: Int(width), height: Int(height)),
+            contentRect: NSRect(x: 0, y: 0, width: SCREEN_SCALE * Int(width), height: SCREEN_SCALE * Int(height)),
             styleMask: [.titled, .closable, .miniaturizable],
             backing: .buffered,
             defer: false

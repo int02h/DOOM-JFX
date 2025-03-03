@@ -8,6 +8,8 @@
 import Foundation
 import Cocoa
 
+let SCREEN_SCALE = 3
+
 var SCREEN_WIDTH = 0
 var SCREEN_HEIGHT = 0
 var PALLETTE: [NSColor] = Array(repeating: NSColor.black, count: 256);
