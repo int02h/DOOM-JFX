@@ -36,6 +36,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 private func initGraphics(width: Int32, height: Int32) {
     print("Init Graphics. Width: \(width), height: \(height)")
     DispatchQueue.main.async {
+        initScreen(width: Int(width), height: (Int)(height))
         let window = NSWindow(
             contentRect: NSRect(x: 0, y: 0, width: Int(width), height: Int(height)),
             styleMask: [.titled, .closable, .miniaturizable],
@@ -51,22 +52,23 @@ private func initGraphics(width: Int32, height: Int32) {
 private func setPalette(_ palette: UnsafePointer<UInt8>?) {
     // 256 colors, 3 bytes each (RGB)
     let byteArray = Array(UnsafeBufferPointer(start: palette, count: 3 * 256))
-    let colors = (0..<256).map {
-        let r = Double(byteArray[3*$0]) / 255;
-        let g = Double(byteArray[3*$0 + 1]) / 256;
-        let b = Double(byteArray[3*$0 + 2]) / 256;
-        return NSColor(red: r, green: g, blue: b, alpha: 1.0)
-    }
     DispatchQueue.main.async {
-        PALLETTE = colors
+        (0..<256).forEach {
+            let r = Double(byteArray[3*$0]) / 255;
+            let g = Double(byteArray[3*$0 + 1]) / 256;
+            let b = Double(byteArray[3*$0 + 2]) / 256;
+            PALLETTE[$0] = NSColor(red: r, green: g, blue: b, alpha: 1.0)
+        }
     }
 }
 
 private func finishUpdate(_ screen: UnsafePointer<UInt8>?) {
-    let byteArray = Array(UnsafeBufferPointer(start: screen, count: 320 * 200))
+    guard let screen = screen else {
+        fatalError("screen is nil on finishUpdate")
+    }
+    updateScreen(source: screen)
     if let view = DoomView.instance {
         DispatchQueue.main.async {
-            view.screen = byteArray
             view.setNeedsDisplay(view.bounds)
         }
     }
