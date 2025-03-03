@@ -24,12 +24,34 @@
 static const char
 rcsid[] = "$Id: i_x.c,v 1.6 1997/02/03 22:45:10 b1 Exp $";
 
-#include <jni.h>
 #include "doomtype.h"
 #include "doomdef.h"
 #include "v_video.h"
 #include "d_event.h"
 #include "d_main.h"
+
+#ifdef MACOSAPP
+#include "macos_app.h"
+
+static InitGraphicsCallback cbInitGraphics = NULL;
+void Callback_InitGraphics(InitGraphicsCallback cb) {
+    cbInitGraphics = cb;
+}
+
+static SetPaletteCallback cbSetPalette = NULL;
+void Callback_SetPalette(SetPaletteCallback cb) {
+    cbSetPalette = cb;
+}
+
+static FinishUpdateCallback cbFinishUpdate = NULL;
+void Callback_FinishUpdate(FinishUpdateCallback cb) {
+    cbFinishUpdate = cb;
+}
+
+#endif
+
+#ifdef JNI
+#include <jni.h>
 
 JavaVM *g_jvm;
 
@@ -84,13 +106,17 @@ void callDoomVideo(const char *name)
     (*g_jvm)->DetachCurrentThread(g_jvm);
 }
 
+#endif
+
 void I_ShutdownGraphics(void)
 {
 }
 
 void I_StartFrame (void)
 {
+#ifdef JNI
     callDoomVideo("startFrame");
+#endif
 }
 
 void I_GetEvent(void)
@@ -107,7 +133,12 @@ void I_UpdateNoBlit (void)
 
 void I_FinishUpdate (void)
 {
+#ifdef MACOSAPP
+    cbFinishUpdate(screens[0]);
+#endif
+#ifdef JNI
     callDoomVideo("finishUpdate");
+#endif
 }
 
 void I_ReadScreen (byte* scr)
@@ -116,6 +147,10 @@ void I_ReadScreen (byte* scr)
 }
 void I_SetPalette (byte* palette)
 {
+#ifdef MACOSAPP
+    cbSetPalette(palette);
+#endif
+#ifdef JNI
     JNIEnv *env;
     (*g_jvm)->AttachCurrentThread(g_jvm, (void**)&env, NULL);
 
@@ -128,9 +163,15 @@ void I_SetPalette (byte* palette)
     (*env)->CallStaticVoidMethod(env, cls, mid, result);
 
     (*g_jvm)->DetachCurrentThread(g_jvm);
+#endif
 }
 
 void I_InitGraphics(void)
 {
+#ifdef MACOSAPP
+    cbInitGraphics(SCREENWIDTH, SCREENHEIGHT);
+#endif
+#ifdef JNI
     callDoomVideo("initGraphics");
+#endif
 }

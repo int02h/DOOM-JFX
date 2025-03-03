@@ -6,8 +6,89 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		97491E592D75C40D00CB5E7F /* libmacosdoom.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 97491E2B2D75C3E500CB5E7F /* libmacosdoom.dylib */; };
+		97491E5A2D75C43100CB5E7F /* libmacosdoom.dylib in Embed Libraries */ = {isa = PBXBuildFile; fileRef = 97491E2B2D75C3E500CB5E7F /* libmacosdoom.dylib */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		97491E5B2D75C43100CB5E7F /* Embed Libraries */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				97491E5A2D75C43100CB5E7F /* libmacosdoom.dylib in Embed Libraries */,
+			);
+			name = "Embed Libraries";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		9704E0BA2D750E0B009C8BCE /* idoom.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = idoom.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		97491E1A2D75C3E500CB5E7F /* am_map.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = am_map.o; sourceTree = "<group>"; };
+		97491E1B2D75C3E500CB5E7F /* d_items.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = d_items.o; sourceTree = "<group>"; };
+		97491E1C2D75C3E500CB5E7F /* d_main.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = d_main.o; sourceTree = "<group>"; };
+		97491E1D2D75C3E500CB5E7F /* d_net.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = d_net.o; sourceTree = "<group>"; };
+		97491E1E2D75C3E500CB5E7F /* doomdef.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = doomdef.o; sourceTree = "<group>"; };
+		97491E1F2D75C3E500CB5E7F /* doomstat.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = doomstat.o; sourceTree = "<group>"; };
+		97491E202D75C3E500CB5E7F /* dstrings.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = dstrings.o; sourceTree = "<group>"; };
+		97491E212D75C3E500CB5E7F /* f_finale.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = f_finale.o; sourceTree = "<group>"; };
+		97491E222D75C3E500CB5E7F /* f_wipe.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = f_wipe.o; sourceTree = "<group>"; };
+		97491E232D75C3E500CB5E7F /* g_game.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = g_game.o; sourceTree = "<group>"; };
+		97491E242D75C3E500CB5E7F /* hu_lib.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = hu_lib.o; sourceTree = "<group>"; };
+		97491E252D75C3E500CB5E7F /* hu_stuff.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = hu_stuff.o; sourceTree = "<group>"; };
+		97491E262D75C3E500CB5E7F /* i_net.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = i_net.o; sourceTree = "<group>"; };
+		97491E272D75C3E500CB5E7F /* i_sound.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = i_sound.o; sourceTree = "<group>"; };
+		97491E282D75C3E500CB5E7F /* i_system.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = i_system.o; sourceTree = "<group>"; };
+		97491E292D75C3E500CB5E7F /* i_video.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = i_video.o; sourceTree = "<group>"; };
+		97491E2A2D75C3E500CB5E7F /* info.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = info.o; sourceTree = "<group>"; };
+		97491E2B2D75C3E500CB5E7F /* libmacosdoom.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libmacosdoom.dylib; sourceTree = "<group>"; };
+		97491E2C2D75C3E500CB5E7F /* m_argv.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = m_argv.o; sourceTree = "<group>"; };
+		97491E2D2D75C3E500CB5E7F /* m_bbox.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = m_bbox.o; sourceTree = "<group>"; };
+		97491E2E2D75C3E500CB5E7F /* m_cheat.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = m_cheat.o; sourceTree = "<group>"; };
+		97491E2F2D75C3E500CB5E7F /* m_fixed.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = m_fixed.o; sourceTree = "<group>"; };
+		97491E302D75C3E500CB5E7F /* m_menu.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = m_menu.o; sourceTree = "<group>"; };
+		97491E312D75C3E500CB5E7F /* m_misc.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = m_misc.o; sourceTree = "<group>"; };
+		97491E322D75C3E500CB5E7F /* m_random.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = m_random.o; sourceTree = "<group>"; };
+		97491E332D75C3E500CB5E7F /* m_swap.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = m_swap.o; sourceTree = "<group>"; };
+		97491E342D75C3E500CB5E7F /* p_ceilng.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = p_ceilng.o; sourceTree = "<group>"; };
+		97491E352D75C3E500CB5E7F /* p_doors.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = p_doors.o; sourceTree = "<group>"; };
+		97491E362D75C3E500CB5E7F /* p_enemy.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = p_enemy.o; sourceTree = "<group>"; };
+		97491E372D75C3E500CB5E7F /* p_floor.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = p_floor.o; sourceTree = "<group>"; };
+		97491E382D75C3E500CB5E7F /* p_inter.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = p_inter.o; sourceTree = "<group>"; };
+		97491E392D75C3E500CB5E7F /* p_lights.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = p_lights.o; sourceTree = "<group>"; };
+		97491E3A2D75C3E500CB5E7F /* p_map.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = p_map.o; sourceTree = "<group>"; };
+		97491E3B2D75C3E500CB5E7F /* p_maputl.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = p_maputl.o; sourceTree = "<group>"; };
+		97491E3C2D75C3E500CB5E7F /* p_mobj.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = p_mobj.o; sourceTree = "<group>"; };
+		97491E3D2D75C3E500CB5E7F /* p_plats.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = p_plats.o; sourceTree = "<group>"; };
+		97491E3E2D75C3E500CB5E7F /* p_pspr.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = p_pspr.o; sourceTree = "<group>"; };
+		97491E3F2D75C3E500CB5E7F /* p_saveg.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = p_saveg.o; sourceTree = "<group>"; };
+		97491E402D75C3E500CB5E7F /* p_setup.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = p_setup.o; sourceTree = "<group>"; };
+		97491E412D75C3E500CB5E7F /* p_sight.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = p_sight.o; sourceTree = "<group>"; };
+		97491E422D75C3E500CB5E7F /* p_spec.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = p_spec.o; sourceTree = "<group>"; };
+		97491E432D75C3E500CB5E7F /* p_switch.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = p_switch.o; sourceTree = "<group>"; };
+		97491E442D75C3E500CB5E7F /* p_telept.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = p_telept.o; sourceTree = "<group>"; };
+		97491E452D75C3E500CB5E7F /* p_tick.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = p_tick.o; sourceTree = "<group>"; };
+		97491E462D75C3E500CB5E7F /* p_user.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = p_user.o; sourceTree = "<group>"; };
+		97491E472D75C3E500CB5E7F /* r_bsp.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = r_bsp.o; sourceTree = "<group>"; };
+		97491E482D75C3E500CB5E7F /* r_data.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = r_data.o; sourceTree = "<group>"; };
+		97491E492D75C3E500CB5E7F /* r_draw.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = r_draw.o; sourceTree = "<group>"; };
+		97491E4A2D75C3E500CB5E7F /* r_main.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = r_main.o; sourceTree = "<group>"; };
+		97491E4B2D75C3E500CB5E7F /* r_plane.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = r_plane.o; sourceTree = "<group>"; };
+		97491E4C2D75C3E500CB5E7F /* r_segs.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = r_segs.o; sourceTree = "<group>"; };
+		97491E4D2D75C3E500CB5E7F /* r_sky.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = r_sky.o; sourceTree = "<group>"; };
+		97491E4E2D75C3E500CB5E7F /* r_things.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = r_things.o; sourceTree = "<group>"; };
+		97491E4F2D75C3E500CB5E7F /* s_sound.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = s_sound.o; sourceTree = "<group>"; };
+		97491E502D75C3E500CB5E7F /* sounds.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = sounds.o; sourceTree = "<group>"; };
+		97491E512D75C3E500CB5E7F /* st_lib.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = st_lib.o; sourceTree = "<group>"; };
+		97491E522D75C3E500CB5E7F /* st_stuff.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = st_stuff.o; sourceTree = "<group>"; };
+		97491E532D75C3E500CB5E7F /* tables.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = tables.o; sourceTree = "<group>"; };
+		97491E542D75C3E500CB5E7F /* v_video.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = v_video.o; sourceTree = "<group>"; };
+		97491E552D75C3E500CB5E7F /* w_wad.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = w_wad.o; sourceTree = "<group>"; };
+		97491E562D75C3E500CB5E7F /* wi_stuff.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = wi_stuff.o; sourceTree = "<group>"; };
+		97491E572D75C3E500CB5E7F /* z_zone.o */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.objfile"; path = z_zone.o; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -23,6 +104,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				97491E592D75C40D00CB5E7F /* libmacosdoom.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -33,6 +115,7 @@
 			isa = PBXGroup;
 			children = (
 				9704E0BC2D750E0B009C8BCE /* idoom */,
+				97491E192D75C3E500CB5E7F /* Frameworks */,
 				9704E0BB2D750E0B009C8BCE /* Products */,
 			);
 			sourceTree = "<group>";
@@ -45,6 +128,84 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		97491E192D75C3E500CB5E7F /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				97491E582D75C3E500CB5E7F /* build */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		97491E582D75C3E500CB5E7F /* build */ = {
+			isa = PBXGroup;
+			children = (
+				97491E1A2D75C3E500CB5E7F /* am_map.o */,
+				97491E1B2D75C3E500CB5E7F /* d_items.o */,
+				97491E1C2D75C3E500CB5E7F /* d_main.o */,
+				97491E1D2D75C3E500CB5E7F /* d_net.o */,
+				97491E1E2D75C3E500CB5E7F /* doomdef.o */,
+				97491E1F2D75C3E500CB5E7F /* doomstat.o */,
+				97491E202D75C3E500CB5E7F /* dstrings.o */,
+				97491E212D75C3E500CB5E7F /* f_finale.o */,
+				97491E222D75C3E500CB5E7F /* f_wipe.o */,
+				97491E232D75C3E500CB5E7F /* g_game.o */,
+				97491E242D75C3E500CB5E7F /* hu_lib.o */,
+				97491E252D75C3E500CB5E7F /* hu_stuff.o */,
+				97491E262D75C3E500CB5E7F /* i_net.o */,
+				97491E272D75C3E500CB5E7F /* i_sound.o */,
+				97491E282D75C3E500CB5E7F /* i_system.o */,
+				97491E292D75C3E500CB5E7F /* i_video.o */,
+				97491E2A2D75C3E500CB5E7F /* info.o */,
+				97491E2B2D75C3E500CB5E7F /* libmacosdoom.dylib */,
+				97491E2C2D75C3E500CB5E7F /* m_argv.o */,
+				97491E2D2D75C3E500CB5E7F /* m_bbox.o */,
+				97491E2E2D75C3E500CB5E7F /* m_cheat.o */,
+				97491E2F2D75C3E500CB5E7F /* m_fixed.o */,
+				97491E302D75C3E500CB5E7F /* m_menu.o */,
+				97491E312D75C3E500CB5E7F /* m_misc.o */,
+				97491E322D75C3E500CB5E7F /* m_random.o */,
+				97491E332D75C3E500CB5E7F /* m_swap.o */,
+				97491E342D75C3E500CB5E7F /* p_ceilng.o */,
+				97491E352D75C3E500CB5E7F /* p_doors.o */,
+				97491E362D75C3E500CB5E7F /* p_enemy.o */,
+				97491E372D75C3E500CB5E7F /* p_floor.o */,
+				97491E382D75C3E500CB5E7F /* p_inter.o */,
+				97491E392D75C3E500CB5E7F /* p_lights.o */,
+				97491E3A2D75C3E500CB5E7F /* p_map.o */,
+				97491E3B2D75C3E500CB5E7F /* p_maputl.o */,
+				97491E3C2D75C3E500CB5E7F /* p_mobj.o */,
+				97491E3D2D75C3E500CB5E7F /* p_plats.o */,
+				97491E3E2D75C3E500CB5E7F /* p_pspr.o */,
+				97491E3F2D75C3E500CB5E7F /* p_saveg.o */,
+				97491E402D75C3E500CB5E7F /* p_setup.o */,
+				97491E412D75C3E500CB5E7F /* p_sight.o */,
+				97491E422D75C3E500CB5E7F /* p_spec.o */,
+				97491E432D75C3E500CB5E7F /* p_switch.o */,
+				97491E442D75C3E500CB5E7F /* p_telept.o */,
+				97491E452D75C3E500CB5E7F /* p_tick.o */,
+				97491E462D75C3E500CB5E7F /* p_user.o */,
+				97491E472D75C3E500CB5E7F /* r_bsp.o */,
+				97491E482D75C3E500CB5E7F /* r_data.o */,
+				97491E492D75C3E500CB5E7F /* r_draw.o */,
+				97491E4A2D75C3E500CB5E7F /* r_main.o */,
+				97491E4B2D75C3E500CB5E7F /* r_plane.o */,
+				97491E4C2D75C3E500CB5E7F /* r_segs.o */,
+				97491E4D2D75C3E500CB5E7F /* r_sky.o */,
+				97491E4E2D75C3E500CB5E7F /* r_things.o */,
+				97491E4F2D75C3E500CB5E7F /* s_sound.o */,
+				97491E502D75C3E500CB5E7F /* sounds.o */,
+				97491E512D75C3E500CB5E7F /* st_lib.o */,
+				97491E522D75C3E500CB5E7F /* st_stuff.o */,
+				97491E532D75C3E500CB5E7F /* tables.o */,
+				97491E542D75C3E500CB5E7F /* v_video.o */,
+				97491E552D75C3E500CB5E7F /* w_wad.o */,
+				97491E562D75C3E500CB5E7F /* wi_stuff.o */,
+				97491E572D75C3E500CB5E7F /* z_zone.o */,
+			);
+			name = build;
+			path = "../doom-jfx/doomsrc/build";
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -55,6 +216,7 @@
 				9704E0B62D750E0B009C8BCE /* Sources */,
 				9704E0B72D750E0B009C8BCE /* Frameworks */,
 				9704E0B82D750E0B009C8BCE /* Resources */,
+				97491E5B2D75C43100CB5E7F /* Embed Libraries */,
 			);
 			buildRules = (
 			);
@@ -253,6 +415,7 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
+				HEADER_SEARCH_PATHS = "../doom-jfx/doomsrc";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_NSMainStoryboardFile = Main;
 				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
@@ -260,10 +423,13 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
+				LIBRARY_SEARCH_PATHS = "../doom-jfx/doomsrc/build";
+				MACOSX_DEPLOYMENT_TARGET = 14.6;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.dpforge.idoom;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = idoom/DoomBridgingHeader.h;
 				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
@@ -278,6 +444,7 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
+				HEADER_SEARCH_PATHS = "../doom-jfx/doomsrc";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_NSMainStoryboardFile = Main;
 				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
@@ -285,10 +452,13 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
+				LIBRARY_SEARCH_PATHS = "../doom-jfx/doomsrc/build";
+				MACOSX_DEPLOYMENT_TARGET = 14.6;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.dpforge.idoom;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = idoom/DoomBridgingHeader.h;
 				SWIFT_VERSION = 5.0;
 			};
 			name = Release;

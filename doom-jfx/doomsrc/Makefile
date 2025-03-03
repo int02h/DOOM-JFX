@@ -11,9 +11,9 @@ endif
 
 CC=  gcc  # gcc or g++
 
-JAVA_INCLUDES=-I$(JAVA_HOME)/include -I$(JAVA_HOME)/include/darwin
+JAVA_INCLUDES=-I../../idoom/idoom -L$(O) -framework Foundation #-I$(JAVA_HOME)/include -I$(JAVA_HOME)/include/darwin
 # For a proper .dylib, you should enable Position-Independent Code (PIC) using -fPIC
-CFLAGS=-g -shared -dynamiclib -fPIC -Wall -DNORMALUNIX -DMACOS #-DLINUX -DUSEASM
+CFLAGS=-g -shared -dynamiclib -install_name @rpath/libmacosdoom.dylib -fPIC -Wall -DNORMALUNIX -DMACOS -DMACOSAPP #-DLINUX -DUSEASM
 
 # subdirectory for objects
 O=build
