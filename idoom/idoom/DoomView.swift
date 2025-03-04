@@ -55,7 +55,7 @@ class DoomView: NSView {
         for y in 0..<SCREEN_HEIGHT {
             for x in 0..<SCREEN_WIDTH {
                 let colorIndex = Int(screen[y * SCREEN_WIDTH + x])
-                let color = PALLETTE[colorIndex].usingColorSpace(.sRGB) ?? .black
+                let color = PALLETTE[colorIndex]
                 
                 var red: CGFloat = 0, green: CGFloat = 0, blue: CGFloat = 0, alpha: CGFloat = 1
                 color.getRed(&red, green: &green, blue: &blue, alpha: &alpha)

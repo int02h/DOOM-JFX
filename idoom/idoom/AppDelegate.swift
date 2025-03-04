@@ -83,6 +83,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 }
 
+var windowRef: NSWindow? // keep window reference to avoid object deallocation
+
 private func initGraphics(width: Int32, height: Int32) {
     print("Init Graphics. Width: \(width), height: \(height)")
     DispatchQueue.main.async {
@@ -95,8 +97,10 @@ private func initGraphics(width: Int32, height: Int32) {
             defer: false
         )
         window.title = "iDOOM"
-        window.makeKeyAndOrderFront(nil)
         window.contentView = DoomView(frame: window.contentView!.bounds)
+        window.makeKeyAndOrderFront(nil)
+        
+        windowRef = window
     }
 }
 
