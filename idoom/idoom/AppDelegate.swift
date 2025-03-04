@@ -69,7 +69,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     
     private func getDoomKeyCode(_ event: NSEvent) -> Int32 {
         if (event.keyCode == 3) { // key f
-            let averageTime = Double(DoomView.instance!.totalTime) / Double(DoomView.instance!.totalCount)
+            let averageTime = Double(totalTime) / Double(totalCount)
             print("Average execution time: \(averageTime / 1_000_000) ms")
         }
         return switch event.keyCode {
@@ -86,7 +86,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 private func initGraphics(width: Int32, height: Int32) {
     print("Init Graphics. Width: \(width), height: \(height)")
     DispatchQueue.main.async {
-        initScreen(width: Int(width), height: (Int)(height))
+        SCREEN_WIDTH = Int(width)
+        SCREEN_HEIGHT = Int(height)
         let window = NSWindow(
             contentRect: NSRect(x: 0, y: 0, width: SCREEN_SCALE * Int(width), height: SCREEN_SCALE * Int(height)),
             styleMask: [.titled, .closable, .miniaturizable],
@@ -125,14 +126,24 @@ private func startFrame() {
     }
 }
 
+var totalTime: UInt64 = 0
+var totalCount: UInt64 = 0
+
 private func finishUpdate(_ screen: UnsafePointer<UInt8>?) {
     guard let screen = screen else {
         fatalError("screen is nil on finishUpdate")
     }
-    updateScreen(source: screen)
+    
+    let start = DispatchTime.now()
+    
     if let view = DoomView.instance {
-        DispatchQueue.main.async {
-            view.setNeedsDisplay(view.bounds)
+        DispatchQueue.main.sync {
+            view.drawGameFrame(screen)
         }
     }
+    
+    let end = DispatchTime.now()
+    let elapsed = end.uptimeNanoseconds - start.uptimeNanoseconds
+    totalTime += elapsed
+    totalCount += 1
 }

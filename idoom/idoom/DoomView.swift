@@ -4,11 +4,8 @@ class DoomView: NSView {
     
     static var instance: DoomView?
     
-    var totalTime: UInt64 = 0
-    var totalCount: UInt64 = 0
-    
-    var bitmapContext: CGContext?
-    var pixelData: UnsafeMutablePointer<UInt8>?
+    var bitmapContext: CGContext!
+    var pixelData: UnsafeMutablePointer<UInt8>!
     
     override init(frame frameRect: NSRect) {
         super.init(frame: frameRect)
@@ -32,10 +29,10 @@ class DoomView: NSView {
         
         // Allocate memory for the pixel buffer
         pixelData = UnsafeMutablePointer<UInt8>.allocate(capacity: width * height * bytesPerPixel)
-        pixelData?.initialize(repeating: 0, count: width * height * bytesPerPixel)
+        pixelData.initialize(repeating: 0, count: width * height * bytesPerPixel)
         
         // Create a persistent bitmap context
-        bitmapContext = CGContext(
+        guard let bitmapContext = CGContext(
             data: pixelData,
             width: width,
             height: height,
@@ -43,19 +40,18 @@ class DoomView: NSView {
             bytesPerRow: bytesPerRow,
             space: colorSpace,
             bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
-        )
+        ) else {
+            fatalError("Failed to create CGContext!")
+        }
+        self.bitmapContext = bitmapContext
     }
     
     override func draw(_ dirtyRect: NSRect) {
-        let start = DispatchTime.now()
-        super.draw(dirtyRect)
         guard let context = NSGraphicsContext.current?.cgContext else { return }
-        
-        let screen = readScreen()
-        if (screen.count == 0) { return }
-        
-        guard let pixelData, let bitmapContext else { return }
-        
+        context.draw(bitmapContext.makeImage()!, in: bounds)
+    }
+    
+    func drawGameFrame(_ screen: UnsafePointer<UInt8>) {
         for y in 0..<SCREEN_HEIGHT {
             for x in 0..<SCREEN_WIDTH {
                 let colorIndex = Int(screen[y * SCREEN_WIDTH + x])
@@ -72,11 +68,6 @@ class DoomView: NSView {
             }
         }
         
-        context.draw(bitmapContext.makeImage()!, in: bounds)
-        
-        let end = DispatchTime.now()
-        let elapsed = end.uptimeNanoseconds - start.uptimeNanoseconds
-        totalTime += elapsed
-        totalCount += 1
+        display()
     }
 }
