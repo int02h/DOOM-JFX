@@ -43,9 +43,28 @@ void Callback_SetPalette(SetPaletteCallback cb) {
     cbSetPalette = cb;
 }
 
+static StartFrameCallback cbStartFrame = NULL;
+void Callback_StartFrame(StartFrameCallback cb) {
+    cbStartFrame = cb;
+}
+
 static FinishUpdateCallback cbFinishUpdate = NULL;
 void Callback_FinishUpdate(FinishUpdateCallback cb) {
     cbFinishUpdate = cb;
+}
+
+void onKeyDown(int keyCode) {
+    event_t event;
+    event.type = ev_keydown;
+    event.data1 = keyCode;
+    D_PostEvent(&event);
+}
+
+void onKeyUp(int keyCode) {
+    event_t event;
+    event.type = ev_keyup;
+    event.data1 = keyCode;
+    D_PostEvent(&event);
 }
 
 #endif
@@ -114,6 +133,9 @@ void I_ShutdownGraphics(void)
 
 void I_StartFrame (void)
 {
+#ifdef MACOSAPP
+    cbStartFrame();
+#endif
 #ifdef JNI
     callDoomVideo("startFrame");
 #endif

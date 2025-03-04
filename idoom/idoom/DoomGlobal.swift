@@ -15,7 +15,7 @@ var SCREEN_HEIGHT = 0
 var PALLETTE: [NSColor] = Array(repeating: NSColor.black, count: 256);
 
 private var SCREEN: [UInt8] = [];
-private let screenSyncQueue = DispatchQueue(label: "screen access queue") // Serial queue
+private let screenSyncQueue = DispatchQueue(label: "screen access queue", qos: .userInteractive) // Serial queue
 
 func initScreen(width: Int, height: Int) {
     SCREEN_WIDTH = width
@@ -38,3 +38,31 @@ func readScreen() -> [UInt8] {
     return screenSyncQueue.sync { SCREEN } // Read inside the queue
 }
 
+
+private var keyEvents: [KeyEvent] = [];
+private let keyEventSyncQueue = DispatchQueue(label: "key events", qos: .userInteractive) // Serial queue
+
+func addKeyEvent(_ event: KeyEvent) {
+    keyEventSyncQueue.sync {
+        keyEvents.append(event)
+    }
+}
+
+func popAllKeyEvents(to destination: inout [KeyEvent]) {
+    keyEventSyncQueue.sync {
+        if (!keyEvents.isEmpty) {
+            destination = keyEvents
+            keyEvents.removeAll(keepingCapacity: true)
+        }
+    }
+}
+
+struct KeyEvent {
+    let type: KeyEventType
+    let keyCode: Int32
+}
+
+enum KeyEventType {
+    case up
+    case down
+}

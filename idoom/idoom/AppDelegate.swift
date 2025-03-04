@@ -1,18 +1,54 @@
 import Cocoa
 
 class AppDelegate: NSObject, NSApplicationDelegate {
+    
+    private var isCtrlPressed = false
 
     func applicationDidFinishLaunching(_ aNotification: Notification) {
+        NSEvent.addLocalMonitorForEvents(matching: [.keyDown, .keyUp, .flagsChanged]) { event in
+            switch (event.type) {
+            case .keyDown:
+                if !event.isARepeat {
+                    print("key code down: \(event.keyCode)")
+                    addKeyEvent(KeyEvent(type: .down, keyCode: self.getDoomKeyCode(event)))
+                }
+            case .keyUp:
+                if !event.isARepeat {
+                    print("key code up: \(event.keyCode)")
+                    addKeyEvent(KeyEvent(type: .up, keyCode: self.getDoomKeyCode(event)))
+                }
+            case .flagsChanged:
+                let isCtrlPressedNow = event.modifierFlags.contains(.command)
+                if (self.isCtrlPressed != isCtrlPressedNow) {
+                    if (isCtrlPressedNow) {
+                        print("ctrl down")
+                        addKeyEvent(KeyEvent(type: .down, keyCode: (0x80+0x1d)))
+                    } else {
+                        print("ctrl up")
+                        addKeyEvent(KeyEvent(type: .up, keyCode: (0x80+0x1d)))
+                    }
+                    self.isCtrlPressed = isCtrlPressedNow
+                }
+            default: break
+            }
+            
+            // Prevent macOS from handling the event
+            return nil  // Returning nil stops the system from processing it
+        }
+        
         // Run C game loop in the background
         DispatchQueue.global(qos: .userInteractive).async {
             let initGraphicsPointer: @convention(c) (Int32, Int32) -> Void = initGraphics
-            Callback_InitGraphics(initGraphicsPointer);
+            Callback_InitGraphics(initGraphicsPointer)
             
             let setPalettePointer: @convention(c) (UnsafePointer<UInt8>?) -> Void = setPalette
-            Callback_SetPalette(setPalettePointer);
+            Callback_SetPalette(setPalettePointer)
+            
+            let startFramePointer: @convention(c) () -> Void = startFrame
+            Callback_StartFrame(startFramePointer)
             
             let finishUpdatePointer: @convention(c) (UnsafePointer<UInt8>?) -> Void = finishUpdate
-            Callback_FinishUpdate(finishUpdatePointer);
+            Callback_FinishUpdate(finishUpdatePointer)
             
             D_DoomMain();
         }
@@ -31,6 +67,20 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         return true
     }
     
+    private func getDoomKeyCode(_ event: NSEvent) -> Int32 {
+        if (event.keyCode == 3) { // key f
+            let averageTime = Double(DoomView.instance!.totalTime) / Double(DoomView.instance!.totalCount)
+            print("Average execution time: \(averageTime / 1_000_000) ms")
+        }
+        return switch event.keyCode {
+        case 0x7B: 0xAC // arrow left
+        case 0x7C: 0xAE // arrow right
+        case 0x7D: 0xAF// arrow down
+        case 0x7E: 0xAD // arrow up
+        case 0x24: 13 // enter
+        default: Int32(event.keyCode)
+        }
+    }
 }
 
 private func initGraphics(width: Int32, height: Int32) {
@@ -57,7 +107,20 @@ private func setPalette(_ palette: UnsafePointer<UInt8>?) {
             let r = Double(byteArray[3*$0]) / 255;
             let g = Double(byteArray[3*$0 + 1]) / 256;
             let b = Double(byteArray[3*$0 + 2]) / 256;
-            PALLETTE[$0] = NSColor(red: r, green: g, blue: b, alpha: 1.0)
+            PALLETTE[$0] = NSColor(srgbRed: r, green: g, blue: b, alpha: 1.0)
+        }
+    }
+}
+
+private var keyEvents: [KeyEvent] = [];
+
+private func startFrame() {
+    keyEvents.removeAll(keepingCapacity: true)
+    popAllKeyEvents(to: &keyEvents)
+    keyEvents.forEach { event in
+        switch event.type {
+        case .down: onKeyDown(event.keyCode)
+        case .up: onKeyUp(event.keyCode)
         }
     }
 }
