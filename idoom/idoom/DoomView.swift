@@ -4,6 +4,8 @@ class DoomView: NSView {
     
     static var instance: DoomView?
     
+    let gameLayer = CALayer()
+    
     var bitmapContext: CGContext!
     var pixelData: UnsafeMutablePointer<UInt8>!
     
@@ -44,11 +46,9 @@ class DoomView: NSView {
             fatalError("Failed to create CGContext!")
         }
         self.bitmapContext = bitmapContext
-    }
-    
-    override func draw(_ dirtyRect: NSRect) {
-        guard let context = NSGraphicsContext.current?.cgContext else { return }
-        context.draw(bitmapContext.makeImage()!, in: bounds)
+        
+        wantsLayer = true  // Enable layer-backed drawing
+        layer = gameLayer  // Set the custom CALayer
     }
     
     func drawGameFrame(_ screen: UnsafePointer<UInt8>) {
@@ -68,6 +68,6 @@ class DoomView: NSView {
             }
         }
         
-        display()
+        self.gameLayer.contents = bitmapContext.makeImage()
     }
 }
