@@ -24,6 +24,7 @@
 static const char
 rcsid[] = "$Id: i_unix.c,v 1.5 1997/02/03 22:45:10 b1 Exp $";
 
+#include <jni.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
@@ -60,6 +61,8 @@ rcsid[] = "$Id: i_unix.c,v 1.5 1997/02/03 22:45:10 b1 Exp $";
 #include "w_wad.h"
 
 #include "doomdef.h"
+
+#include "java_host.h"
 
 // UNIX hack, to be removed.
 #ifdef SNDSERV
@@ -104,9 +107,6 @@ static int flag = 0;
 
 // The actual lengths of all sound effects.
 int 		lengths[NUMSFX];
-
-// The actual output device.
-int	audio_fd;
 
 // The global mixing buffer.
 // Basically, samples from all active internal channels
@@ -154,6 +154,11 @@ int*		channelleftvol_lookup[NUM_CHANNELS];
 int*		channelrightvol_lookup[NUM_CHANNELS];
 
 
+JNIEXPORT jobject JNICALL Java_com_dpforge_doom_DoomSound_getMixBuffer(JNIEnv *env, jclass clazz)
+{
+    // Create a direct ByteBuffer that wraps the native memory
+    return (*env)->NewDirectByteBuffer(env, mixbuffer, MIXBUFFERSIZE);
+}
 
 
 //
@@ -668,7 +673,8 @@ void
 I_SubmitSound(void)
 {
   // Write it to DSP device.
-  write(audio_fd, mixbuffer, SAMPLECOUNT*BUFMUL);
+  // write(audio_fd, mixbuffer, SAMPLECOUNT*BUFMUL);
+  javaCallStaticVoid("com/dpforge/doom/DoomSound", "submitSound");
 }
 
 
@@ -694,18 +700,9 @@ I_UpdateSoundParams
 
 void I_ShutdownSound(void)
 {
-#ifdef SNDSERV
-  if (sndserver)
-  {
-    // Send a "quit" command.
-    fprintf(sndserver, "q\n");
-    fflush(sndserver);
-  }
-#else
   // Wait till all pending sounds are finished.
   int done = 0;
   int i;
-
 
   // FIXME (below).
   fprintf( stderr, "I_ShutdownSound: NOT finishing pending sounds\n");
@@ -719,13 +716,7 @@ void I_ShutdownSound(void)
     //if (i==8)
     done=1;
   }
-#ifdef SNDINTR
   I_SoundDelTimer();
-#endif
-
-  // Cleaning up -releasing the DSP device.
-  close ( audio_fd );
-#endif
 
   // Done.
   return;
@@ -739,63 +730,11 @@ void I_ShutdownSound(void)
 void
 I_InitSound()
 {
-#ifdef SNDSERV
-  char buffer[256];
-
-  if (getenv("DOOMWADDIR"))
-    sprintf(buffer, "%s/%s",
-	    getenv("DOOMWADDIR"),
-	    sndserver_filename);
-  else
-    sprintf(buffer, "%s", sndserver_filename);
-
-  // start sound process
-  if ( !access(buffer, X_OK) )
-  {
-    strcat(buffer, " -quiet");
-    sndserver = popen(buffer, "w");
-  }
-  else
-    fprintf(stderr, "Could not start sound server [%s]\n", buffer);
-#else
-
   int i;
-
-#ifdef SNDINTR
   fprintf( stderr, "I_SoundSetTimer: %d microsecs\n", SOUND_INTERVAL );
   I_SoundSetTimer( SOUND_INTERVAL );
-#endif
 
   // Secure and configure sound device first.
-  fprintf( stderr, "I_InitSound: ");
-
-  audio_fd = open("/dev/dsp", O_WRONLY);
-  if (audio_fd<0)
-    fprintf(stderr, "Could not open /dev/dsp\n");
-
-
-  i = 11 | (2<<16);
-  myioctl(audio_fd, SNDCTL_DSP_SETFRAGMENT, &i);
-  myioctl(audio_fd, SNDCTL_DSP_RESET, 0);
-
-  i=SAMPLERATE;
-
-  myioctl(audio_fd, SNDCTL_DSP_SPEED, &i);
-
-  i=1;
-  myioctl(audio_fd, SNDCTL_DSP_STEREO, &i);
-
-  myioctl(audio_fd, SNDCTL_DSP_GETFMTS, &i);
-
-  if (i&=AFMT_S16_LE)
-    myioctl(audio_fd, SNDCTL_DSP_SETFMT, &i);
-  else
-    fprintf(stderr, "Could not play signed 16 data\n");
-
-  fprintf(stderr, " configured audio device\n" );
-
-
-  // Initialize external data (all sounds) at start, keep static.
   fprintf( stderr, "I_InitSound: ");
 
   for (i=1 ; i<NUMSFX ; i++)
@@ -820,10 +759,10 @@ I_InitSound()
   for ( i = 0; i< MIXBUFFERSIZE; i++ )
     mixbuffer[i] = 0;
 
+  javaCallStaticVoid("com/dpforge/doom/DoomSound", "initSound");
+
   // Finished initialization.
   fprintf(stderr, "I_InitSound: sound module ready\n");
-
-#endif
 }
 
 
@@ -926,7 +865,7 @@ void I_HandleSoundTimer( int ignore )
   {
     // See I_SubmitSound().
     // Write it to DSP device.
-    write(audio_fd, mixbuffer, SAMPLECOUNT*BUFMUL);
+//    write(audio_fd, mixbuffer, SAMPLECOUNT*BUFMUL);
 
     // Reset flag counter.
     flag = 0;

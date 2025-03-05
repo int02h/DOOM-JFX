@@ -11,9 +11,10 @@ endif
 
 CC=  gcc  # gcc or g++
 
-JAVA_INCLUDES=-I../../idoom/idoom -L$(O) -framework Foundation #-I$(JAVA_HOME)/include -I$(JAVA_HOME)/include/darwin
+#JAVA_INCLUDES=-I../../idoom/idoom -L$(O) -framework Foundation
+JAVA_INCLUDES=-I$(JAVA_HOME)/include -I$(JAVA_HOME)/include/darwin
 # For a proper .dylib, you should enable Position-Independent Code (PIC) using -fPIC
-CFLAGS=-g -shared -dynamiclib -install_name @rpath/libmacosdoom.dylib -fPIC -Wall -DNORMALUNIX -DMACOS -DMACOSAPP #-DLINUX -DUSEASM
+CFLAGS=-g -shared -dynamiclib -install_name @rpath/libmacosdoom.dylib -fPIC -Wall -DNORMALUNIX -DMACOS -DJNI # -DMACOSAPP
 
 # subdirectory for objects
 O=build
@@ -80,7 +81,8 @@ OBJS=				\
 		$(O)/s_sound.o		\
 		$(O)/z_zone.o			\
 		$(O)/info.o				\
-		$(O)/sounds.o
+		$(O)/sounds.o           \
+		$(O)/java_host.o     	\
 
 all: make_dirs build copy_output
 

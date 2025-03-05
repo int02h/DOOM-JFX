@@ -71,15 +71,7 @@ void onKeyUp(int keyCode) {
 
 #ifdef JNI
 #include <jni.h>
-
-JavaVM *g_jvm;
-
-JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved)
-{
-    g_jvm = vm;
-    printf("JNI JNI_OnLoad\n");
-    return JNI_VERSION_1_6;
-}
+#include "java_host.h"
 
 JNIEXPORT jint JNICALL Java_com_dpforge_doom_DoomVideo_getScreenWidth(JNIEnv *env, jclass clazz)
 {
@@ -115,14 +107,7 @@ JNIEXPORT void JNICALL Java_com_dpforge_doom_DoomVideo_onKeyUp(JNIEnv *env, jcla
 
 void callDoomVideo(const char *name)
 {
-    JNIEnv *env;
-    (*g_jvm)->AttachCurrentThread(g_jvm, (void**)&env, NULL);
-
-    jclass cls = (*env)->FindClass(env, "com/dpforge/doom/DoomVideo");
-    jmethodID mid = (*env)->GetStaticMethodID(env, cls, name, "()V");
-    (*env)->CallStaticVoidMethod(env, cls, mid);
-
-    (*g_jvm)->DetachCurrentThread(g_jvm);
+    javaCallStaticVoid("com/dpforge/doom/DoomVideo", name);
 }
 
 #endif

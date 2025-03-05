@@ -50,7 +50,7 @@ class DoomKeyboard implements KeyListener {
             case KeyEvent.VK_ENTER -> 13;
             case KeyEvent.VK_ESCAPE -> 27;
             case KeyEvent.VK_SHIFT -> (0x80 + 0x36);
-            case KeyEvent.VK_CONTROL -> (0x80 + 0x1d);
+            case KeyEvent.VK_CONTROL, KeyEvent.VK_Z -> (0x80 + 0x1d);
             case KeyEvent.VK_ALT -> (0x80 + 0x38);
             default -> keyCode;
         };
