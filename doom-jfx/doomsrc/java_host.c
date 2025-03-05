@@ -1,3 +1,4 @@
+#ifdef JNI
 #include "java_host.h"
 
 JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved)
@@ -16,3 +17,4 @@ void javaCallStaticVoid(const char *className, const char *methodName)
     (*env)->CallStaticVoidMethod(env, cls, mid);
     (*g_jvm)->DetachCurrentThread(g_jvm);
 }
+#endif

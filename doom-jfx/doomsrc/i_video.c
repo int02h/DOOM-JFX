@@ -70,7 +70,6 @@ void onKeyUp(int keyCode) {
 #endif
 
 #ifdef JNI
-#include <jni.h>
 #include "java_host.h"
 
 JNIEXPORT jint JNICALL Java_com_dpforge_doom_DoomVideo_getScreenWidth(JNIEnv *env, jclass clazz)

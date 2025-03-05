@@ -24,7 +24,6 @@
 static const char
 rcsid[] = "$Id: i_unix.c,v 1.5 1997/02/03 22:45:10 b1 Exp $";
 
-#include <jni.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
@@ -62,7 +61,9 @@ rcsid[] = "$Id: i_unix.c,v 1.5 1997/02/03 22:45:10 b1 Exp $";
 
 #include "doomdef.h"
 
+#ifdef JNI
 #include "java_host.h"
+#endif
 
 // UNIX hack, to be removed.
 #ifdef SNDSERV
@@ -154,11 +155,13 @@ int*		channelleftvol_lookup[NUM_CHANNELS];
 int*		channelrightvol_lookup[NUM_CHANNELS];
 
 
+#ifdef JNI
 JNIEXPORT jobject JNICALL Java_com_dpforge_doom_DoomSound_getMixBuffer(JNIEnv *env, jclass clazz)
 {
     // Create a direct ByteBuffer that wraps the native memory
     return (*env)->NewDirectByteBuffer(env, mixbuffer, MIXBUFFERSIZE);
 }
+#endif
 
 
 //
@@ -656,7 +659,10 @@ void I_UpdateSound( void )
     }
 
     // Increment flag for update.
+#ifndef MACOSAPP
+    // In macOS Cocoa app setitimer(ITIMER_REAL, ...) is not allowed due to App Sandbox restrictions.
     flag++;
+#endif
 #endif
 }
 
@@ -674,7 +680,9 @@ I_SubmitSound(void)
 {
   // Write it to DSP device.
   // write(audio_fd, mixbuffer, SAMPLECOUNT*BUFMUL);
+  #ifdef JNI
   javaCallStaticVoid("com/dpforge/doom/DoomSound", "submitSound");
+  #endif
 }
 
 
@@ -759,7 +767,9 @@ I_InitSound()
   for ( i = 0; i< MIXBUFFERSIZE; i++ )
     mixbuffer[i] = 0;
 
+  #ifdef JNI
   javaCallStaticVoid("com/dpforge/doom/DoomSound", "initSound");
+  #endif
 
   // Finished initialization.
   fprintf(stderr, "I_InitSound: sound module ready\n");
@@ -881,6 +891,11 @@ void I_HandleSoundTimer( int ignore )
 // Get the interrupt. Set duration in millisecs.
 int I_SoundSetTimer( int duration_of_tick )
 {
+#ifdef MACOSAPP
+    // If macOS app is a Cocoa app (GUI-based, using NSApplication), setitimer(ITIMER_REAL, ...) is not allowed due to App Sandbox restrictions.
+    // Java JNI apps run in a terminal environment, which does not have the same restrictions.
+    return -1;
+#endif
   // Needed for gametick clockwork.
   struct itimerval    value;
   struct itimerval    ovalue;
@@ -920,6 +935,9 @@ int I_SoundSetTimer( int duration_of_tick )
 // Remove the interrupt. Set duration to zero.
 void I_SoundDelTimer()
 {
+#ifdef MACOSAPP
+    return;
+#endif
   // Debug.
   if ( I_SoundSetTimer( 0 ) == -1)
     fprintf( stderr, "I_SoundDelTimer: failed to remove interrupt. Doh!\n");
