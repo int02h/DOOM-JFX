@@ -12,7 +12,8 @@ let SCREEN_SCALE = 3
 
 var SCREEN_WIDTH = 0
 var SCREEN_HEIGHT = 0
-var PALLETTE: [NSColor] = Array(repeating: NSColor.black, count: 256);
+// 256 colors, 3 bytes each (red, green, blue)
+var PALLETTE: [UInt8] = Array(repeating: 0, count: 3 * 256);
 
 private var keyEvents: [KeyEvent] = [];
 private let keyEventSyncQueue = DispatchQueue(label: "key events", qos: .userInteractive) // Serial queue

@@ -108,12 +108,7 @@ private func setPalette(_ palette: UnsafePointer<UInt8>?) {
     // 256 colors, 3 bytes each (RGB)
     let byteArray = Array(UnsafeBufferPointer(start: palette, count: 3 * 256))
     DispatchQueue.main.async {
-        (0..<256).forEach {
-            let r = Double(byteArray[3*$0]) / 255;
-            let g = Double(byteArray[3*$0 + 1]) / 256;
-            let b = Double(byteArray[3*$0 + 2]) / 256;
-            PALLETTE[$0] = NSColor(srgbRed: r, green: g, blue: b, alpha: 1.0)
-        }
+        PALLETTE = byteArray
     }
 }
 

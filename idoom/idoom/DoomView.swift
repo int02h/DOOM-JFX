@@ -55,16 +55,15 @@ class DoomView: NSView {
         for y in 0..<SCREEN_HEIGHT {
             for x in 0..<SCREEN_WIDTH {
                 let colorIndex = Int(screen[y * SCREEN_WIDTH + x])
-                let color = PALLETTE[colorIndex]
-                
-                var red: CGFloat = 0, green: CGFloat = 0, blue: CGFloat = 0, alpha: CGFloat = 1
-                color.getRed(&red, green: &green, blue: &blue, alpha: &alpha)
+                let red = PALLETTE[3 * colorIndex]
+                let green = PALLETTE[3 * colorIndex + 1]
+                let blue = PALLETTE[3 * colorIndex + 2]
                 
                 let pixelIndex = ((y * SCREEN_WIDTH) + x) * 4
-                pixelData[pixelIndex]     = UInt8(red * 255)
-                pixelData[pixelIndex + 1] = UInt8(green * 255)
-                pixelData[pixelIndex + 2] = UInt8(blue * 255)
-                pixelData[pixelIndex + 3] = UInt8(alpha * 255)
+                pixelData[pixelIndex]     = red
+                pixelData[pixelIndex + 1] = green
+                pixelData[pixelIndex + 2] = blue
+                pixelData[pixelIndex + 3] = 255
             }
         }
         
