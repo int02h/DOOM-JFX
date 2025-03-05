@@ -25,9 +25,6 @@ class DoomView: NSView {
         let width = SCREEN_WIDTH
         let height = SCREEN_HEIGHT
         let bytesPerPixel = 4
-        let bytesPerRow = width * bytesPerPixel
-        let bitsPerComponent = 8
-        let colorSpace = CGColorSpaceCreateDeviceRGB()
         
         // Allocate memory for the pixel buffer
         pixelData = UnsafeMutablePointer<UInt8>.allocate(capacity: width * height * bytesPerPixel)
@@ -38,10 +35,10 @@ class DoomView: NSView {
             data: pixelData,
             width: width,
             height: height,
-            bitsPerComponent: bitsPerComponent,
-            bytesPerRow: bytesPerRow,
-            space: colorSpace,
-            bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
+            bitsPerComponent: 8,
+            bytesPerRow: width * bytesPerPixel,
+            space: CGColorSpaceCreateDeviceRGB(),
+            bitmapInfo: CGImageAlphaInfo.noneSkipFirst.rawValue | CGBitmapInfo.byteOrder32Little.rawValue
         ) else {
             fatalError("Failed to create CGContext!")
         }
@@ -60,9 +57,9 @@ class DoomView: NSView {
                 let blue = PALLETTE[3 * colorIndex + 2]
                 
                 let pixelIndex = ((y * SCREEN_WIDTH) + x) * 4
-                pixelData[pixelIndex]     = red
+                pixelData[pixelIndex]     = blue
                 pixelData[pixelIndex + 1] = green
-                pixelData[pixelIndex + 2] = blue
+                pixelData[pixelIndex + 2] = red
                 pixelData[pixelIndex + 3] = 255
             }
         }
