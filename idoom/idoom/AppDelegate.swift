@@ -3,6 +3,7 @@ import Cocoa
 class AppDelegate: NSObject, NSApplicationDelegate {
     
     private var isCtrlPressed = false
+    private var isShiftPressed = false
 
     func applicationDidFinishLaunching(_ aNotification: Notification) {
         NSEvent.addLocalMonitorForEvents(matching: [.keyDown, .keyUp, .flagsChanged]) { event in
@@ -29,6 +30,17 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                     }
                     self.isCtrlPressed = isCtrlPressedNow
                 }
+                let isShiftPressedNow = event.modifierFlags.contains(.shift)
+                if (self.isShiftPressed != isShiftPressedNow) {
+                    if (isShiftPressedNow) {
+                        print("shift down")
+                        addKeyEvent(KeyEvent(type: .down, keyCode: (0x80+0x36)))
+                    } else {
+                        print("shift up")
+                        addKeyEvent(KeyEvent(type: .up, keyCode: (0x80+0x36)))
+                    }
+                    self.isShiftPressed = isShiftPressedNow
+                }
             default: break
             }
             
@@ -53,7 +65,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             D_DoomMain();
         }
     }
-
+    
     func applicationWillTerminate(_ aNotification: Notification) {
         // Insert code here to tear down your application
     }
@@ -72,12 +84,16 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             let averageTime = Double(totalTime) / Double(totalCount)
             print("Average execution time: \(averageTime / 1_000_000) ms")
         }
+
+        if let asciiCode = event.charactersIgnoringModifiers?.first?.asciiValue {
+            return Int32(asciiCode)
+        }
+
         return switch event.keyCode {
         case 0x7B: 0xAC // arrow left
         case 0x7C: 0xAE // arrow right
         case 0x7D: 0xAF// arrow down
         case 0x7E: 0xAD // arrow up
-        case 0x24: 13 // enter
         default: Int32(event.keyCode)
         }
     }
