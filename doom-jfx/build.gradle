@@ -50,8 +50,8 @@ model {
                     cCompiler.args '-mmacosx-version-min=10.9'
                     linker.args '-mmacosx-version-min=10.9'
                     linker.args '-stdlib=libc++'
-                    linker.args '-L', "${projectDir}/libs"  // Add library search path
-                    linker.args '-lmacosdoom'  // Link against libdoom.dylib (without 'lib' prefix)
+                    linker.args '-L', "${projectDir}/../libs"  // Add library search path
+                    linker.args '-ljnidoom'
                 } else if (targetPlatform.operatingSystem.linux) {
                     cCompiler.args '-I', "${jvmHome}/include"
                     cCompiler.args '-I', "${jvmHome}/include/linux"

@@ -4,7 +4,7 @@ public class DoomMain {
     public native void start();
 
     static {
-        System.loadLibrary("macosdoom");
+        System.loadLibrary("jnidoom");
         System.loadLibrary("doom");
     }
 
