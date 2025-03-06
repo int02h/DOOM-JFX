@@ -62,7 +62,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             let finishUpdatePointer: @convention(c) (UnsafePointer<UInt8>?) -> Void = finishUpdate
             Callback_FinishUpdate(finishUpdatePointer)
             
-            D_DoomMain();
+            I_Main(CommandLine.argc, CommandLine.unsafeArgv);
         }
     }
     

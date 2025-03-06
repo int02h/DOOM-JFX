@@ -85,7 +85,8 @@ COMMON_OBJS=				\
 		s_sound.o		\
 		z_zone.o			\
 		info.o				\
-		sounds.o
+		sounds.o			\
+		i_main.o
 
 MACOS_OBJS = $(addprefix $(MACOS_O)/, $(COMMON_OBJS))
 JNI_OBJS   = $(addprefix $(JNI_O)/, $(COMMON_OBJS)) $(JNI_O)/java_host.o

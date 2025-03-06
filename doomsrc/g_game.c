@@ -1585,10 +1585,11 @@ void G_DoPlayDemo (void)
     int             i, episode, map; 
 	 
     gameaction = ga_nothing; 
-    demobuffer = demo_p = W_CacheLumpName (defdemoname, PU_STATIC); 
-    if ( *demo_p++ != VERSION)
+    demobuffer = demo_p = W_CacheLumpName (defdemoname, PU_STATIC);
+    byte demover = *demo_p++;
+    if ( demover != VERSION)
     {
-      fprintf( stderr, "Demo is from a different game version!\n");
+      fprintf( stderr, "Demo is from a different game version: %d! Current version: %d\n", demover, VERSION);
       gameaction = ga_nothing;
       return;
     }

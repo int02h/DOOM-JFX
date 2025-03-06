@@ -3,6 +3,6 @@
 
 #include "macos_app.h"
 
-void D_DoomMain();
+int I_Main(int argc, char** argv);
 
 #endif
