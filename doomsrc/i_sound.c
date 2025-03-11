@@ -65,6 +65,21 @@ rcsid[] = "$Id: i_unix.c,v 1.5 1997/02/03 22:45:10 b1 Exp $";
 #include "java_host.h"
 #endif
 
+#ifdef MACOSAPP
+#include "macos_app.h"
+
+static InitSoundCallback cbInitSound = NULL;
+void Callback_InitSound(InitSoundCallback cb) {
+    cbInitSound = cb;
+}
+
+static SubmitSoundCallback cbSubmitSound = NULL;
+void Callback_SubmitSound(SubmitSoundCallback cb) {
+    cbSubmitSound = cb;
+}
+
+#endif
+
 // UNIX hack, to be removed.
 #ifdef SNDSERV
 // Separate sound server process.
@@ -115,6 +130,10 @@ int 		lengths[NUMSFX];
 //  that is submitted to the audio device.
 signed short	mixbuffer[MIXBUFFERSIZE];
 
+// Create a direct ByteBuffer that wraps the native memory
+// In fact, the mixbuffer size should be twice larger since it `singed short`. But the second half of the buffer is filled with 0's.
+// The investigation is needed.
+unsigned int actualBufferSize = MIXBUFFERSIZE;
 
 // The channel step amount...
 unsigned int	channelstep[NUM_CHANNELS];
@@ -158,8 +177,7 @@ int*		channelrightvol_lookup[NUM_CHANNELS];
 #ifdef JNI
 JNIEXPORT jobject JNICALL Java_com_dpforge_doom_DoomSound_getMixBuffer(JNIEnv *env, jclass clazz)
 {
-    // Create a direct ByteBuffer that wraps the native memory
-    return (*env)->NewDirectByteBuffer(env, mixbuffer, MIXBUFFERSIZE);
+    return (*env)->NewDirectByteBuffer(env, mixbuffer, actualBufferSize);
 }
 #endif
 
@@ -683,6 +701,9 @@ I_SubmitSound(void)
   #ifdef JNI
   javaCallStaticVoid("com/dpforge/doom/DoomSound", "submitSound");
   #endif
+  #ifdef MACOSAPP
+  cbSubmitSound();
+  #endif
 }
 
 
@@ -769,6 +790,10 @@ I_InitSound()
 
   #ifdef JNI
   javaCallStaticVoid("com/dpforge/doom/DoomSound", "initSound");
+  #endif
+
+  #ifdef MACOSAPP
+  cbInitSound(mixbuffer, actualBufferSize);
   #endif
 
   // Finished initialization.

@@ -62,6 +62,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             let finishUpdatePointer: @convention(c) (UnsafePointer<UInt8>?) -> Void = finishUpdate
             Callback_FinishUpdate(finishUpdatePointer)
             
+            let initSoundPointer: @convention(c) (UnsafePointer<Int16>?, UInt32) -> Void = initSound
+            Callback_InitSound(initSoundPointer)
+            
+            let submitSoundPointer: @convention(c) () -> Void = submitSound
+            Callback_SubmitSound(submitSoundPointer)
+            
             I_Main(CommandLine.argc, CommandLine.unsafeArgv);
         }
     }
@@ -161,4 +167,20 @@ private func finishUpdate(_ screen: UnsafePointer<UInt8>?) {
     let elapsed = end.uptimeNanoseconds - start.uptimeNanoseconds
     totalTime += elapsed
     totalCount += 1
+}
+
+var pcmPlayer: PCMPlayer?
+
+private func initSound(_ mixBuffer: UnsafePointer<Int16>?, _ bufferSize: UInt32) {
+    guard let mixBuffer = mixBuffer else {
+        fatalError("mix buffer is nil")
+    }
+    pcmPlayer = PCMPlayer(mixBuffer: mixBuffer, bufferSize: UInt32(bufferSize))
+}
+
+private func submitSound() {
+    guard let pcmPlayer = pcmPlayer else {
+        fatalError("PCM player is not initialized")
+    }
+    pcmPlayer.play()
 }
